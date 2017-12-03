@@ -16,7 +16,7 @@ class BasicFeatureVectorBuilder(FeatureBuilderBase):
         vec100 = self.f100.getFeatureVector(history, tag)
         vec103 = self.f103.getFeatureVector(history, tag)
         vec104 = self.f104.getFeatureVector(history, tag)
-        return np.concatenate((vec100, vec103, vec104))
+        return np.concatenate((vec100, vec103, vec104, []))
 
     def __init__(self, parser: MyParser) -> None:
         self.parser = parser

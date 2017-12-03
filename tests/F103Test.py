@@ -8,10 +8,8 @@ def sanity():
              ("t1", "t1", "t2")]
     f103 = F103Builder(words)
     history = History("t1", "t2", ["w2", "w5", "w8", "w2"], 1)
-    vec = f103.getFeatureVector(history, "t8")
-    print(vec)
-    vec1 = f103.getFeatureVector(history, "t1")
-    print(vec1)
+    assert f103.getFeatureVector(history, "t8").size == 0
+    assert f103.getFeatureVector(history, "t1").size == 1
 
 
 def realData():
@@ -20,8 +18,8 @@ def realData():
     f103 = F103Builder(words)
     firstSent = [w for (w, t) in p.splitted[0]]
     history = History("RB", "VBG", firstSent, 3)
-    print(f103.getFeatureVector(history, "bla").sum())
-    print(f103.getFeatureVector(history, "RP").sum())
+    assert f103.getFeatureVector(history, "bla").size == 0
+    assert f103.getFeatureVector(history, "RP").size == 1
 
 
 if __name__ == "__main__":

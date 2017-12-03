@@ -8,9 +8,9 @@ def sanity():
     f100 = F100Builder(words)
     history = History("t5", "t2", ["w2", "w5", "w8", "w2"], 1)
     vec = f100.getFeatureVector(history, "t2")
-    print(vec)
-    vec1 = f100.getFeatureVector(history, "t1")
-    print(vec1)
+    assert vec.size == 1
+    vec = f100.getFeatureVector(history, "t1")
+    assert vec.size == 0
 
 def realData():
     p = MyParser('../train.wtag')
@@ -18,8 +18,8 @@ def realData():
     f100 = F100Builder(words)
     firstSent = [w for (w, t) in p.splitted[0]]
     history=History("t5","t2",firstSent,3)
-    print(f100.getFeatureVector(history,"bla").sum())
-    print(f100.getFeatureVector(history,"RB").sum())
+    assert f100.getFeatureVector(history,"bla").size == 0
+    assert f100.getFeatureVector(history,"RB").size == 1
 
 if __name__=="__main__":
     realData()
