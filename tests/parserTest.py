@@ -1,4 +1,4 @@
-from myParser import MyParser
+from MyParser import MyParser
 
 p = MyParser("../train.wtag")
 words = p.getWordsWithTag()

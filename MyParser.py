@@ -44,3 +44,11 @@ class MyParser:
         l = list(set(tags))
         l.sort()
         return l
+
+    def getUniqueTags(self):
+        l = self.getWordsWithTag()
+        tags = [w[1] for w in l]
+        tags = list(set(tags))
+        tags.sort()
+        return tags
+

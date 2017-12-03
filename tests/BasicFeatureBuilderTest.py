@@ -1,6 +1,6 @@
 from Features.BasicFeatureVectorBuilder import BasicFeatureVectorBuilder
 from History import History
-from myParser import MyParser
+from MyParser import MyParser
 
 
 def basicTest():

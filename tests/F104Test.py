@@ -1,6 +1,6 @@
 from Features.F104Builder import F104Builder
 from History import History
-from myParser import MyParser
+from MyParser import MyParser
 
 
 def sanity():
