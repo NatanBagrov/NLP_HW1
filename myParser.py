@@ -28,6 +28,9 @@ class MyParser:
         for line in self.splitted:
             for (_, t1), (_, t2), (_, t3) in zip(line[:], line[1:], line[2:]):
                 tags.append((t1, t2, t3))
+            tags.append(("*", "*", line[0][1]))
+            if len(line) > 1:
+                tags.append(("*", line[0][1], line[1][1]))
         l = list(set(tags))
         l.sort()
         return l
@@ -37,6 +40,7 @@ class MyParser:
         for line in self.splitted:
             for (_, t1), (_, t2) in zip(line[:], line[1:]):
                 tags.append((t1, t2))
+            tags.append(("*", line[0][1]))
         l = list(set(tags))
         l.sort()
         return l
