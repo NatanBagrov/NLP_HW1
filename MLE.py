@@ -19,6 +19,15 @@ class MLE():
         self.sumfiyi = np.zeros(self.featureBuilder.size)
         self.preprocess()
 
+
+    def p(self, history, tag, v):
+        feature = self.featureBuilder.getFeatureVector(history,tag)
+        numerator = np.math.exp(np.sum(v[feature]))
+        features = list(map(lambda x: self.featureBuilder.getFeatureVector(history,x), self.allTags))
+        features = list(map(lambda x: np.math.exp(np.sum(v[x])), features))
+        res = np.sum(features)
+        return numerator / res
+
     def preprocess(self):
         for line in self.splitted:
             sentence = [w[0] for w in line]
