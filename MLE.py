@@ -1,5 +1,5 @@
 import multiprocessing
-
+from scipy import optimize
 import numpy as np
 import time
 
@@ -48,7 +48,7 @@ class MLE():
 
     def calculateGradient(self, v):
         self.v = v
-        poolSize = 8
+        poolSize = 4
         splitted = self.slice_list(list(range(0, len(self.splitted))), 8)
         splitted = list(filter(lambda x: len(x) > 0, splitted))
         se = [(l[0], l[-1]) for l in splitted]
@@ -105,8 +105,9 @@ class MLE():
         return linearScore - globalScore
 
     def calcTuple(self, v):
+        np.savetxt('opt_v.txt', v)
         self.v = v
-        poolSize = 8
+        poolSize = 4
         splitted = self.slice_list(list(range(0, len(self.splitted))), poolSize)
         splitted = list(filter(lambda x: len(x) > 0, splitted))
         se = [(l[0], l[-1]) for l in splitted]
@@ -119,7 +120,7 @@ class MLE():
         lv = np.sum(lv)
         pool.close()
         pool.join()
-        return lv, grads
+        return -lv, -grads
 
     def calcTupleMP(self, indices):
         v = self.v
@@ -173,3 +174,9 @@ class MLE():
                 result[i].append(next(iterator))
                 remain -= 1
         return result
+
+    def findBestV(self):
+        v = optimize.minimize(self.calcTuple, np.zeros(self.featureBuilder.size),
+                              method='L-BFGS-B', jac=True,options={'disp':True})
+
+        return v.x

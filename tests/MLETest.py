@@ -10,9 +10,13 @@ def calcTupleTestBasic():
     splitted = parser.splitted
     fb = BasicFeatureVectorBuilder(parser)
     mle = MLE(["t1", "t2", "t3", "t5"], splitted, fb)
-    v = np.ones(fb.size)
+    v = np.zeros(fb.size)
     res = mle.calcTuple(v)
     print(res)
+    best_v = mle.findBestV()
+    print(best_v)
+    res1 = mle.calcTuple(best_v)
+    print(res1)
 
 def calcTupleTestRealData():
     parser = MyParser("../train.wtag")
@@ -62,7 +66,6 @@ def realDataTest():
     end = time.time()
     print("calcV took: " + str((end - start) / 60))
     start = time.time()
-    f = open("train_gradient2.txt","w")
     array = mle.calculateGradient(v)
     np.savetxt('train_gradient2.txt',array)
     end = time.time()
@@ -71,18 +74,20 @@ def realDataTest():
     current = np.loadtxt("train_gradient2.txt")
     dist = np.linalg.norm(truth - current)
     print(dist)
+    best_v = mle.findBestV()
+    print(best_v)
 
 
 if __name__=="__main__":
-    calcTupleTestBasic();
-    start = time.time()
+    #calcTupleTestBasic()
+    #start = time.time()
     #basicTest()
-    end = time.time()
-    print((end - start)/60)
-    start = time.time()
+    #end = time.time()
+    #print((end - start)/60)
+    #start = time.time()
     #realDataTest()
-    end = time.time()
-    print((end - start)/60)
+    #end = time.time()
+    #print((end - start)/60)
     start = time.time()
     print("Calculating tuple using real data...")
     calcTupleTestRealData()
