@@ -19,11 +19,10 @@ class MLE():
         self.sumfiyi = np.zeros(self.featureBuilder.size)
         self.preprocess()
 
-
     def p(self, history, tag, v):
-        feature = self.featureBuilder.getFeatureVector(history,tag)
+        feature = self.featureBuilder.getFeatureVector(history, tag)
         numerator = np.math.exp(np.sum(v[feature]))
-        features = list(map(lambda x: self.featureBuilder.getFeatureVector(history,x), self.allTags))
+        features = list(map(lambda x: self.featureBuilder.getFeatureVector(history, x), self.allTags))
         features = list(map(lambda x: np.math.exp(np.sum(v[x])), features))
         res = np.sum(features)
         return numerator / res
@@ -34,7 +33,7 @@ class MLE():
             tags = ["*", "*"] + [w[1] for w in line]
             for (t2, t1, index) in zip(tags[:], tags[1:], range(0, len(sentence))):
                 history = History(t2, t1, sentence, index)
-                f = self.featureBuilder.getFeatureVector(history, tags[index+2])
+                f = self.featureBuilder.getFeatureVector(history, tags[index + 2])
                 self.sumfiyi[f] += 1
 
     def calculate(self, v):
@@ -72,7 +71,7 @@ class MLE():
     def calculateGradientMT(self, indices):
         v = self.v
         weighted_sum = np.zeros(self.featureBuilder.size)
-        for line in self.splitted[indices[0]:indices[1]+1]:
+        for line in self.splitted[indices[0]:indices[1] + 1]:
             sentence = [w[0] for w in line]
             tags = ["*", "*"] + [w[1] for w in line]
             for (t2, t1, index) in zip(tags[:], tags[1:], range(0, len(sentence))):
@@ -97,7 +96,7 @@ class MLE():
     def calculateMP(self, indices):
         v = self.v
         globalScore, linearScore, score = 0, 0, 0
-        for line in self.splitted[indices[0]:indices[1]+1]:
+        for line in self.splitted[indices[0]:indices[1] + 1]:
             sentence = [w[0] for w in line]
             tags = ["*", "*"] + [w[1] for w in line]
             for (t2, t1, index) in zip(tags[:], tags[1:], range(0, len(sentence))):
@@ -116,7 +115,7 @@ class MLE():
     def calcTuple(self, v):
         np.savetxt('opt_v.txt', v)
         self.v = v
-        poolSize = 4
+        poolSize = 7
         splitted = self.slice_list(list(range(0, len(self.splitted))), poolSize)
         splitted = list(filter(lambda x: len(x) > 0, splitted))
         se = [(l[0], l[-1]) for l in splitted]
@@ -134,40 +133,32 @@ class MLE():
     def calcTupleMP(self, indices):
         v = self.v
         globalScore, linearScore, score = 0, 0, 0
-        weighted_sum = np.zeros(self.featureBuilder.size)
-        for line in self.splitted[indices[0]:indices[1]+1]:
+        mySumfiyi = np.zeros(self.featureBuilder.size)
+        for line in self.splitted[indices[0]:indices[1] + 1]:
             sentence = [w[0] for w in line]
             tags = ["*", "*"] + [w[1] for w in line]
             for (t2, t1, index) in zip(tags[:], tags[1:], range(0, len(sentence))):
                 history = History(t2, t1, sentence, index)
-                exp_sum = 0
-                f_log = []  # f(x^(i),y')
-                #f_fast_log = np.zeros(shape=(len(self.allTags),self.featureBuilder.size))
-                fast_idx = 0
-                for tag in self.allTags:
-                    f = self.featureBuilder.getFeatureVector(history, tag)
-                    f_log.append(f)
-                    #f_fast_log[fast_idx, [f]] += 1
-                    np_sum = np.sum(v[f])
-                    expo = np.math.exp(np_sum)
-                    exp_sum = exp_sum + expo
-                    if tag == tags[index + 2]:
-                        linearScore = linearScore + np_sum
-                    score = score + expo
-                    fast_idx = fast_idx + 1
-                globalScore = globalScore + np.math.log(score)
-                score = 0
-                # todo: continue on fast_log
-                #nominators = np.array(np.math.exp(v * fast_idx))
-                for featurevec in f_log:
-                    nominator = np.math.exp(np.sum(v[featurevec]))
-                    res = nominator / exp_sum
-                    tmp = np.zeros(self.featureBuilder.size)
-                    tmp[featurevec] = 1
-                    tmp = tmp * res
-                    weighted_sum = weighted_sum + tmp
+                f = self.featureBuilder.getFeatureVector(history, tags[index + 2])
+                mySumfiyi[f] += 1
+        linearScore = np.inner(mySumfiyi, v)
+        weighted_sum = np.zeros(self.featureBuilder.size)
+        for line in self.splitted[indices[0]:indices[1] + 1]:
+            sentence = [w[0] for w in line]
+            tags = ["*", "*"] + [w[1] for w in line]
+            for (t2, t1, index) in zip(tags[:], tags[1:], range(0, len(sentence))):
+                history = History(t2, t1, sentence, index)
+                fs = [self.featureBuilder.getFeatureVector(history, t) for t in self.allTags]
+                np_sums = np.array([np.sum(v[x]) for x in fs])
+                np_exp_nominators = np.exp(np_sums)
+                np_exp_sum = np.sum(np_exp_nominators)
+                globalScore = globalScore + np.math.log(np_exp_sum)
+                np_ps_of_ytag = np_exp_nominators / np_exp_sum
+                np_features_mult_probs = np.zeros(self.featureBuilder.size)
+                for i in range(0, len(self.allTags)):
+                    np_features_mult_probs[fs[i]] += np_ps_of_ytag[i]
+                weighted_sum = weighted_sum + np_features_mult_probs
         return weighted_sum, [linearScore - globalScore]
-
 
     def slice_list(self, input, size):
         input_size = len(input)
@@ -184,8 +175,8 @@ class MLE():
                 remain -= 1
         return result
 
-    def findBestV(self):
-        v = optimize.minimize(self.calcTuple, np.zeros(self.featureBuilder.size),
-                              method='L-BFGS-B', jac=True,options={'disp':True})
+    def findBestV(self, initV):
+        v = optimize.minimize(self.calcTuple, initV,
+                              method='L-BFGS-B', jac=True, options={'disp': True})
 
         return v.x
