@@ -38,8 +38,9 @@ def calcTupleTestRealData():
     print("calcTuple took: ",end - start, " seconds")
     truth = np.loadtxt("train_gradient.txt")
     current = np.loadtxt("train_gradientTuple.txt")
-    dist = np.linalg.norm(truth - current)
+    dist = np.linalg.norm(truth + current)  # we sum since we changed shit to return negation
     assert dist < 0.0001
+    assert 295426.175443 - lv < 0.001
 
 def basicTest():
     parser = MyParser("MLE_db.wtag")
@@ -63,6 +64,7 @@ def realDataTest():
     v = np.ones(fb.size)
     start = time.time()
     print(mle.calculate(v))
+    return
     end = time.time()
     print("calcV took: " + str((end - start) / 60))
     start = time.time()
