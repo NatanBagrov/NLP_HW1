@@ -27,8 +27,8 @@ def trainTest():
     splitted = parser.splitted
     fb = BasicFeatureVectorBuilder(parser)
     mle = MLE(parser.getUniqueTags(), splitted, fb)
-    v = np.ones(fb.size)
-    splitted = splitted[0:1]
+    v = np.loadtxt('opt_v_3.txt')
+    splitted = [splitted[1427]]
     sentences = list(map(lambda tuples: [t[0] for t in tuples], splitted))
     expected_tags = list(map(lambda tuples: [t[1] for t in tuples], splitted))
     vit = Viterbi(mle, mle.allTags, v)
@@ -51,10 +51,10 @@ def veriftPi():
 
 
 if __name__ == "__main__":
-    #trainTest()
-    start = time.time()
-    basicTest()
-    end = time.time()
-    #print((end - start) / 60)
-    veriftPi()
+    trainTest()
+    # start = time.time()
+    # basicTest()
+    # end = time.time()
+    # #print((end - start) / 60)
+    # veriftPi()
 

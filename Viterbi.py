@@ -36,7 +36,7 @@ class Viterbi:
 
         poolSize = 3
         for self.k in range(3, len(sentence) + 1):
-
+            print(self.k)
             splitted = self.slice_list(list(range(0, len(self.allTagsList))), poolSize)
             splitted = list(filter(lambda x: len(x) > 0, splitted))
             se = [(l[0], l[-1]) for l in splitted]
@@ -54,12 +54,12 @@ class Viterbi:
             pool.join()
 
         tagsList = self.inferenceLastIteration(sentence)
-        if poolSize==1:
-            np.save('viterbi s1 pi c1',self.pi)
-            np.save('viterbi s1 bp c1',self.bp)
-        else:
-            np.save('viterbi s1 pi c3', self.pi)
-            np.save('viterbi s1 bp c3', self.bp)
+        # if poolSize==1:
+        #     np.save('viterbi s1 pi c1',self.pi)
+        #     np.save('viterbi s1 bp c1',self.bp)
+        # else:
+        #     np.save('viterbi s1 pi c3', self.pi)
+        #     np.save('viterbi s1 bp c3', self.bp)
         print(tagsList)
         return tagsList
 

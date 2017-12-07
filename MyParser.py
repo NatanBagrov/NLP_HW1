@@ -51,4 +51,3 @@ class MyParser:
         tags = list(set(tags))
         tags.sort()
         return tags
-
