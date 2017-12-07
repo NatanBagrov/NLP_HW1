@@ -1,48 +1,127 @@
+import multiprocessing
 
-from MLE import MLE
-from History import History
 import numpy as np
+from itertools import product
+
+from History import History
+from MLE import MLE
+
 
 class Viterbi:
     mle = None
     tags = None
     v = None
-    d = None
+    tagsToIdxDict = None
+    idxToTagsDict = None
 
     def __init__(self, mle: MLE, allTags, v) -> None:
         super().__init__()
+        self.k = None
         self.mle = mle
         self.tags = allTags
         self.v = v
-        self.d = {}
+        self.tagsToIdxDict = {}
+        self.idxToTagsDict = {}
         self.tagsNum = len(self.tags)
         for tag, idx in zip(self.tags, range(0, self.tagsNum)):
-            self.d[tag] = idx
-        self.d['*'] = self.tagsNum
+            self.tagsToIdxDict[tag] = idx
+            self.idxToTagsDict[idx] = tag
+        self.tagsToIdxDict['*'] = self.tagsNum
+        self.idxToTagsDict[self.tagsNum] = '*'
 
     def inference(self, sentence):
-        pi = np.empty((len(sentence),len(self.d),len(self.d)))
-        bp = np.empty((len(sentence),len(self.d),len(self.d)))
-        pi[:,:,:] = 0
-        bp[:, :, :] = 0
-        pi[0,len(self.d)-1, len(self.d)-1] = 1
-        bp[0,len(self.d) - 1, len(self.d) - 1] = None
+        self.sentence = sentence
+        self.pi = np.empty((len(sentence) + 1, len(self.tagsToIdxDict), len(self.tagsToIdxDict)))
+        self.bp = np.empty((len(sentence) + 1, len(self.tagsToIdxDict), len(self.tagsToIdxDict)), dtype=int)
+        self.pi[:, :, :] = 0
+        self.bp[:, :, :] = 0
+        self.pi[0, len(self.tagsToIdxDict) - 1, len(self.tagsToIdxDict) - 1] = 1
+        self.bp[0, len(self.tagsToIdxDict) - 1, len(self.tagsToIdxDict) - 1] = self.tagsNum
+        input = [self.tags, self.tags]
+        poolSize = 3
+        for self.k in range(1, len(sentence) + 1):
+            self.allTagsList = list(product(*input))
 
+            poolSize = 3
+            splitted = self.slice_list(list(range(0, len(self.allTagsList))), poolSize)
+            splitted = list(filter(lambda x: len(x) > 0, splitted))
+            se = [(l[0], l[-1]) for l in splitted]
+            pool = multiprocessing.Pool(poolSize)
+            res = pool.imap(self.viterbiLoop, se)
+            x = np.array([np.array(x) for x in res if not x is None])
+            # work...
+            localPi = np.array([np.array(xx[0]) for xx in x])
+            localBp = np.array([np.array(xx[1]) for xx in x])
+            localPi = np.sum(localPi,axis=0)
+            localBp = np.sum(localBp,axis=0)
+            self.pi[self.k]=localPi
+            self.bp[self.k]=localBp
+            pool.close()
+            pool.join()
 
+            # self.viterbiLoop(allTagsList, bp, k, pi, sentence)
+        p = self.pi[len(sentence)]
+        t1, t = np.unravel_index(p.argmax(), p.shape)
+        tagsList = [t, t1]
+        tk1, tk2 = t1, t
+        loopSize = len(sentence) - 1
+        for k in reversed(range(1, loopSize)):
+            tk = self.bp[k + 2, tk1, tk2]
+            tagsList = tagsList + [tk]
+            tk1, tk2 = tk, tk1
+        tagsList = list(map(lambda x: self.idxToTagsDict[x], tagsList))
+        tagsList.reverse()
+        if poolSize==1:
+            np.save('basic_pi1',self.pi)
+            np.save('basic_bp1',self.bp)
+        else:
+            np.save('basic_pi1', self.pi)
+            np.save('basic_bp1', self.bp)
+        print(tagsList)
+        return tagsList
 
-        for k in range(1, len(sentence)+1):
-            for t1, t in zip(self.tags[:], self.tags[:]):
+    def viterbiLoop(self, se):
+        #print(se)
+        allTagsList, bp, k, pi, sentence = self.allTagsList, self.bp, self.k, self.pi, self.sentence
+        myPi = np.zeros((len(self.tagsToIdxDict), len(self.tagsToIdxDict)))
+        myBp = np.zeros((len(self.tagsToIdxDict), len(self.tagsToIdxDict)), dtype=int)
+        se_ = allTagsList[se[0]:se[1] + 1]
+        print(se)
+        print(se_)
+        for tagU, tagV in se_:
+            if k == 1:
+                history = History('*', '*', sentence, k - 1)
+                myPi[self.tagsToIdxDict['*'], self.tagsToIdxDict[tagV]] = self.mle.p(history, tagV, self.v)
+                myBp[self.tagsToIdxDict['*'], self.tagsToIdxDict[tagV]] = self.tagsToIdxDict['*']
+            elif k == 2:
+                history = History('*', tagU, sentence, k - 1)
+                myPi[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = \
+                    pi[k - 1, self.tagsToIdxDict['*'], self.tagsToIdxDict[tagU]] * self.mle.p(history, tagV, self.v)
+                myBp[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = self.tagsToIdxDict['*']
+            else:
                 tmpMax = -1
-                tmpMaxT = None
-                for t2 in self.tags:
-                    history = History(t2,t1,sentence,k-1)
-                    mleRes = self.mle.p(history,t,self.v)
-                    tmpRes = pi[k-1,self.d[t2],t1] * mleRes
+                tmpMaxT = self.tagsNum
+                for tagT in self.tags:
+                    history = History(tagT, tagU, sentence, k - 1)
+                    mleRes = self.mle.p(history, tagV, self.v)
+                    tmpRes = pi[k - 1, self.tagsToIdxDict[tagT], self.tagsToIdxDict[tagU]] * mleRes
                     if tmpRes > tmpMax:
-                        tmpMax, tmpMaxT = tmpRes, t2
-                bp[k,self.d[t1],self.d[t]] = self.d[tmpMaxT]
-                pi[k,self.d[t1],self.d[t]] = tmpMax
-            tn = np.argmax(pi[len(sentence)])
-            print(tn)
+                        tmpMax, tmpMaxT = tmpRes, tagT
+                myPi[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = tmpMax
+                myBp[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = self.tagsToIdxDict[tmpMaxT]
+        return (myPi,myBp)
 
-
+    def slice_list(self, input, size):
+        input_size = len(input)
+        slice_size = input_size // size
+        remain = input_size % size
+        result = []
+        iterator = iter(input)
+        for i in range(size):
+            result.append([])
+            for j in range(slice_size):
+                result[i].append(next(iterator))
+            if remain:
+                result[i].append(next(iterator))
+                remain -= 1
+        return result
