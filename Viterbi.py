@@ -30,19 +30,13 @@ class Viterbi:
         self.idxToTagsDict[self.tagsNum] = '*'
 
     def inference(self, sentence):
-        self.sentence = sentence
-        self.pi = np.empty((len(sentence) + 1, len(self.tagsToIdxDict), len(self.tagsToIdxDict)))
-        self.bp = np.empty((len(sentence) + 1, len(self.tagsToIdxDict), len(self.tagsToIdxDict)), dtype=int)
-        self.pi[:, :, :] = 0
-        self.bp[:, :, :] = 0
-        self.pi[0, len(self.tagsToIdxDict) - 1, len(self.tagsToIdxDict) - 1] = 1
-        self.bp[0, len(self.tagsToIdxDict) - 1, len(self.tagsToIdxDict) - 1] = self.tagsNum
-        input = [self.tags, self.tags]
-        poolSize = 3
-        for self.k in range(1, len(sentence) + 1):
-            self.allTagsList = list(product(*input))
+        self.inferenceSetUp(sentence)
+        self.inferenceFirstIteration(sentence)
+        self.inferenceSecondIteration(sentence)
 
-            poolSize = 3
+        poolSize = 3
+        for self.k in range(3, len(sentence) + 1):
+
             splitted = self.slice_list(list(range(0, len(self.allTagsList))), poolSize)
             splitted = list(filter(lambda x: len(x) > 0, splitted))
             se = [(l[0], l[-1]) for l in splitted]
@@ -59,7 +53,17 @@ class Viterbi:
             pool.close()
             pool.join()
 
-            # self.viterbiLoop(allTagsList, bp, k, pi, sentence)
+        tagsList = self.inferenceLastIteration(sentence)
+        if poolSize==1:
+            np.save('viterbi s1 pi c1',self.pi)
+            np.save('viterbi s1 bp c1',self.bp)
+        else:
+            np.save('viterbi s1 pi c3', self.pi)
+            np.save('viterbi s1 bp c3', self.bp)
+        print(tagsList)
+        return tagsList
+
+    def inferenceLastIteration(self, sentence):
         p = self.pi[len(sentence)]
         t1, t = np.unravel_index(p.argmax(), p.shape)
         tagsList = [t, t1]
@@ -71,44 +75,47 @@ class Viterbi:
             tk1, tk2 = tk, tk1
         tagsList = list(map(lambda x: self.idxToTagsDict[x], tagsList))
         tagsList.reverse()
-        if poolSize==1:
-            np.save('basic_pi1',self.pi)
-            np.save('basic_bp1',self.bp)
-        else:
-            np.save('basic_pi1', self.pi)
-            np.save('basic_bp1', self.bp)
-        print(tagsList)
         return tagsList
 
+    def inferenceSecondIteration(self, sentence):
+        for tagU, tagV in self.allTagsList:
+            history = History('*', tagU, sentence, 1)
+            self.pi[2, self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = \
+                self.pi[1, self.tagsToIdxDict['*'], self.tagsToIdxDict[tagU]] * self.mle.p(history, tagV, self.v)
+            self.bp[2, self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = self.tagsToIdxDict['*']
+
+    def inferenceFirstIteration(self, sentence):
+        for tagV in self.tags:
+            history = History('*', '*', sentence, 0)
+            self.pi[1, self.tagsToIdxDict['*'], self.tagsToIdxDict[tagV]] = self.mle.p(history, tagV, self.v)
+            self.bp[1, self.tagsToIdxDict['*'], self.tagsToIdxDict[tagV]] = self.tagsToIdxDict['*']
+
+    def inferenceSetUp(self, sentence):
+        self.sentence = sentence
+        self.pi = np.empty((len(sentence) + 1, len(self.tagsToIdxDict), len(self.tagsToIdxDict)))
+        self.bp = np.empty((len(sentence) + 1, len(self.tagsToIdxDict), len(self.tagsToIdxDict)), dtype=int)
+        self.pi[:, :, :] = 0
+        self.bp[:, :, :] = 0
+        self.pi[0, len(self.tagsToIdxDict) - 1, len(self.tagsToIdxDict) - 1] = 1
+        self.bp[0, len(self.tagsToIdxDict) - 1, len(self.tagsToIdxDict) - 1] = self.tagsNum
+        input = [self.tags, self.tags]
+        self.allTagsList = list(product(*input))
+
     def viterbiLoop(self, se):
-        #print(se)
         allTagsList, bp, k, pi, sentence = self.allTagsList, self.bp, self.k, self.pi, self.sentence
         myPi = np.zeros((len(self.tagsToIdxDict), len(self.tagsToIdxDict)))
         myBp = np.zeros((len(self.tagsToIdxDict), len(self.tagsToIdxDict)), dtype=int)
-        se_ = allTagsList[se[0]:se[1] + 1]
-        print(se)
-        print(se_)
-        for tagU, tagV in se_:
-            if k == 1:
-                history = History('*', '*', sentence, k - 1)
-                myPi[self.tagsToIdxDict['*'], self.tagsToIdxDict[tagV]] = self.mle.p(history, tagV, self.v)
-                myBp[self.tagsToIdxDict['*'], self.tagsToIdxDict[tagV]] = self.tagsToIdxDict['*']
-            elif k == 2:
-                history = History('*', tagU, sentence, k - 1)
-                myPi[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = \
-                    pi[k - 1, self.tagsToIdxDict['*'], self.tagsToIdxDict[tagU]] * self.mle.p(history, tagV, self.v)
-                myBp[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = self.tagsToIdxDict['*']
-            else:
-                tmpMax = -1
-                tmpMaxT = self.tagsNum
-                for tagT in self.tags:
-                    history = History(tagT, tagU, sentence, k - 1)
-                    mleRes = self.mle.p(history, tagV, self.v)
-                    tmpRes = pi[k - 1, self.tagsToIdxDict[tagT], self.tagsToIdxDict[tagU]] * mleRes
-                    if tmpRes > tmpMax:
-                        tmpMax, tmpMaxT = tmpRes, tagT
-                myPi[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = tmpMax
-                myBp[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = self.tagsToIdxDict[tmpMaxT]
+        for tagU, tagV in allTagsList[se[0]:se[1] + 1]:
+            tmpMax = -1
+            tmpMaxT = self.tagsNum
+            for tagT in self.tags:
+                history = History(tagT, tagU, sentence, k - 1)
+                mleRes = self.mle.p(history, tagV, self.v)
+                tmpRes = pi[k - 1, self.tagsToIdxDict[tagT], self.tagsToIdxDict[tagU]] * mleRes
+                if tmpRes > tmpMax:
+                    tmpMax, tmpMaxT = tmpRes, tagT
+            myPi[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = tmpMax
+            myBp[self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = self.tagsToIdxDict[tmpMaxT]
         return (myPi,myBp)
 
     def slice_list(self, input, size):

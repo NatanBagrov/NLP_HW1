@@ -42,7 +42,12 @@ def trainTest():
     print(res)
 
 def veriftPi():
-   pass
+    pi1_gold = np.load('viterbi s1 pi c1 gold.npy')
+    pi1 = np.load('viterbi s1 pi c1.npy')
+    pi3 = np.load('viterbi s1 pi c3.npy')
+    assert abs(np.sum(pi1 - pi1_gold)) < 0.0001
+    assert abs(np.sum(pi3 - pi1_gold)) < 0.0001
+
 
 
 if __name__ == "__main__":
