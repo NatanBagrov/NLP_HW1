@@ -22,22 +22,20 @@ class MLE():
     def p(self, history, tag, v):
         feature = self.featureBuilder.getFeatureVector(history, tag)
         numerator = np.math.exp(np.sum(v[feature]))
-        #fs = [self.featureBuilder.getFeatureVector(history, t) for t in self.allTags]
-        fs2 = self.featureBuilder.getFeatureVectors(history, self.allTags)
-        np_sums = np.array([np.sum(v[x]) for x in fs2])
+        fs = [self.featureBuilder.getFeatureVector(history, t) for t in self.allTags]
+        np_sums = np.array([np.sum(v[x]) for x in fs])
         np_exp_nominators = np.exp(np_sums)
         np_exp_sum = np.sum(np_exp_nominators)
         return numerator / np_exp_sum
 
-    def p_numerator(self,history,tag,v):
+    def p_forTags(self,history,tag,v,tags):
         feature = self.featureBuilder.getFeatureVector(history, tag)
-        return np.math.exp(np.sum(v[feature]))
-
-    def p_denominator(self,history,v):
-        fs2 = self.featureBuilder.getFeatureVectors(history, self.allTags)
-        np_sums = np.array([np.sum(v[x]) for x in fs2])
+        numerator = np.math.exp(np.sum(v[feature]))
+        fs = [self.featureBuilder.getFeatureVector(history, t) for t in tags]
+        np_sums = np.array([np.sum(v[x]) for x in fs])
         np_exp_nominators = np.exp(np_sums)
-        return np.sum(np_exp_nominators)
+        np_exp_sum = np.sum(np_exp_nominators)
+        return numerator / np_exp_sum
 
     def preprocess(self):
         for line in self.splitted:
@@ -47,82 +45,6 @@ class MLE():
                 history = History(t2, t1, sentence, index)
                 f = self.featureBuilder.getFeatureVector(history, tags[index + 2])
                 self.sumfiyi[f] += 1
-
-    def calculate(self, v):
-        self.v = v
-        poolSize = 8
-        splitted = self.slice_list(list(range(0, len(self.splitted))), poolSize)
-        splitted = list(filter(lambda x: len(x) > 0, splitted))
-        se = [(l[0], l[-1]) for l in splitted]
-        pool = multiprocessing.Pool(poolSize)
-        res = pool.imap(self.calculateMP, se)
-        x = np.array([np.array(x) for x in res if not x is None])
-        res = np.sum(x, axis=0)
-        pool.close()
-        pool.join()
-        return res
-
-    def calculateL(self, v):
-        (linearScore, globalScore) = self.calculate(v)
-        return linearScore - globalScore
-
-    def calculateGradient(self, v):
-        self.v = v
-        poolSize = 4
-        splitted = self.slice_list(list(range(0, len(self.splitted))), 8)
-        splitted = list(filter(lambda x: len(x) > 0, splitted))
-        se = [(l[0], l[-1]) for l in splitted]
-        pool = multiprocessing.Pool(poolSize)
-        res = pool.imap(self.calculateGradientMT, se)
-        x = np.array([np.array(x) for x in res if not x is None])
-        res = self.sumfiyi - np.sum(x, axis=0)
-        pool.close()
-        pool.join()
-        return res
-
-    def calculateGradientMT(self, indices):
-        v = self.v
-        weighted_sum = np.zeros(self.featureBuilder.size)
-        for line in self.splitted[indices[0]:indices[1] + 1]:
-            sentence = [w[0] for w in line]
-            tags = ["*", "*"] + [w[1] for w in line]
-            for (t2, t1, index) in zip(tags[:], tags[1:], range(0, len(sentence))):
-                history = History(t2, t1, sentence, index)
-                exp_sum = 0
-                f_log = []  # f(x^(i),y')
-                for tag in self.allTags:
-                    f = self.featureBuilder.getFeatureVector(history, tag)
-                    f_log.append(f)
-                    np_sum = np.sum(v[f])
-                    expo = np.math.exp(np_sum)
-                    exp_sum = exp_sum + expo
-                for featurevec in f_log:
-                    nominator = np.math.exp(np.sum(v[featurevec]))
-                    res = nominator / exp_sum
-                    tmp = np.zeros(self.featureBuilder.size)
-                    tmp[featurevec] = 1
-                    tmp = tmp * res
-                    weighted_sum = weighted_sum + tmp
-        return weighted_sum
-
-    def calculateMP(self, indices):
-        v = self.v
-        globalScore, linearScore, score = 0, 0, 0
-        for line in self.splitted[indices[0]:indices[1] + 1]:
-            sentence = [w[0] for w in line]
-            tags = ["*", "*"] + [w[1] for w in line]
-            for (t2, t1, index) in zip(tags[:], tags[1:], range(0, len(sentence))):
-                history = History(t2, t1, sentence, index)
-                for tag in self.allTags:
-                    f = self.featureBuilder.getFeatureVector(history, tag)
-                    np_sum = np.sum(v[f])
-                    expo = np.math.exp(np_sum)
-                    if tag == tags[index + 2]:
-                        linearScore = linearScore + np_sum
-                    score = score + expo
-                globalScore = globalScore + np.math.log(score)
-                score = 0
-        return linearScore - globalScore
 
     def calcTuple(self, v):
         np.savetxt('opt_v_2.txt', v)

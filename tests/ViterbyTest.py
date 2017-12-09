@@ -30,7 +30,7 @@ def trainTest():
     fb = BasicFeatureVectorBuilder(parser,0)
     mle = MLE(parser.getUniqueTags(), splitted, fb)
     v = np.loadtxt("opt_v_3.txt")
-    #splitted = splitted[436:]
+    #splitted = splitted[0:10]
     sentences = list(map(lambda tuples: [t[0] for t in tuples], splitted))
     expected_tags = list(map(lambda tuples: [t[1] for t in tuples], splitted))
     seenSentencesToTagsDict = parser.getSeenWordsToTagsDict()

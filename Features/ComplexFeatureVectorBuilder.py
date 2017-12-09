@@ -32,46 +32,46 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
 
     def __init__(self, parser: MyParser) -> None:
         self.parser = parser
-        self.f100 = F100Builder(parser.getWordsWithTag())
-        self.f101 = F101Builder()
-        self.f102 = F102Builder()
-        self.f103 = F103Builder(parser.getAllThreeTagsCombinations())
-        self.f104 = F104Builder(parser.getAllPairTagsCombinations())
-        self.f105 = F105Builder(parser.getUniqueTags())
-        self.fCapital = FCapitalBuilder()
-        self.fNumber = FNumberBuilder()
-        self.fNumberCD = FNumberCDBuilder()
-        self.fAble = FAbleBuilder()
-        self.fLyJJ = FLyJJBuilder()
-        self.fLyRB = FLyRBBuilder()
-        super().__init__(self.f100.size + self.f101.size + self.f102.size + self.f103.size + self.f104.size
-                         + self.f105.size + self.fCapital.size + self.fNumber.size + self.fNumberCD.size + self.fAble.size
-                         + self.fLyJJ.size + self.fLyRB.size)
+        vecSize = 0
+        self.f100 = F100Builder(parser.getWordsWithTag(), vecSize)
+        vecSize = self.f100.size
+        self.f101 = F101Builder(vecSize)
+        vecSize = vecSize + self.f101.size
+        self.f102 = F102Builder(vecSize)
+        vecSize = vecSize + self.f102.size
+        self.f103 = F103Builder(parser.getAllThreeTagsCombinations(), vecSize)
+        vecSize = vecSize + self.f103.size
+        self.f104 = F104Builder(parser.getAllPairTagsCombinations(), vecSize)
+        vecSize = vecSize + self.f104.size
+        self.f105 = F105Builder(parser.getUniqueTags(), vecSize)
+        vecSize = vecSize + self.f105.size
+        self.fCapital = FCapitalBuilder(vecSize)
+        vecSize = vecSize + self.fCapital.size
+        self.fNumber = FNumberBuilder(vecSize)
+        vecSize = vecSize + self.fNumber.size
+        self.fNumberCD = FNumberCDBuilder(vecSize)
+        vecSize = vecSize + self.fNumberCD.size
+        self.fAble = FAbleBuilder(vecSize)
+        vecSize = vecSize + self.fAble.size
+        self.fLyJJ = FLyJJBuilder(vecSize)
+        vecSize = vecSize + self.fLyJJ.size
+        self.fLyRB = FLyRBBuilder(vecSize)
+        vecSize = vecSize + self.fLyRB.size
+        super().__init__(vecSize,0)
 
     def getFeatureVector(self, history, tag):
         vec100 = self.f100.getFeatureVector(history, tag)
-        vecSize = self.f100.size
-        vec101 = self.f101.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.f101.size
-        vec102 = self.f102.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.f102.size
-        vec103 = self.f103.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.f103.size
-        vec104 = self.f104.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.f104.size
-        vec105 = self.f105.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.f105.size
-        vecCapital = self.fCapital.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.fCapital.size
-        vecNumber = self.fNumber.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.fNumber.size
-        vecNumberCD = self.fNumberCD.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.fNumberCD.size
-        vecAble = self.fAble.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.fAble.size
-        vecLyJJ = self.fLyJJ.getFeatureVector(history, tag) + vecSize
-        vecSize = vecSize + self.fLyJJ.size
-        vecLyRB = self.fLyRB.getFeatureVector(history, tag) + vecSize
+        vec101 = self.f101.getFeatureVector(history, tag)
+        vec102 = self.f102.getFeatureVector(history, tag)
+        vec103 = self.f103.getFeatureVector(history, tag)
+        vec104 = self.f104.getFeatureVector(history, tag)
+        vec105 = self.f105.getFeatureVector(history, tag)
+        vecCapital = self.fCapital.getFeatureVector(history, tag)
+        vecNumber = self.fNumber.getFeatureVector(history, tag)
+        vecNumberCD = self.fNumberCD.getFeatureVector(history, tag)
+        vecAble = self.fAble.getFeatureVector(history, tag)
+        vecLyJJ = self.fLyJJ.getFeatureVector(history, tag)
+        vecLyRB = self.fLyRB.getFeatureVector(history, tag)
         return np.concatenate(
             (vec100, vec101, vec102, vec103, vec104, vec105, vecCapital, vecNumber, vecNumberCD, vecAble, vecLyJJ,
              vecLyRB)).astype(int)

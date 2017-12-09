@@ -16,5 +16,5 @@ class FeatureBuilderBase(metaclass=ABCMeta):
     def getFeatureVector(self, history, tag):
         raise NotImplemented
 
-    def getFeatureVectors(self, history, tags):
-        return [self.getFeatureVector(history, t) for t in tags]
+    # def getFeatureVectors(self, history, tags):
+    #     return [self.getFeatureVector(history, t) for t in tags]
