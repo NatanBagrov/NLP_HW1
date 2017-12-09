@@ -3,6 +3,8 @@ import multiprocessing
 import numpy as np
 from itertools import product
 
+import time
+
 from History import History
 from MLE import MLE
 
@@ -13,8 +15,9 @@ class Viterbi:
     v = None
     tagsToIdxDict = None
     idxToTagsDict = None
+    seenWordsToTagsDict = None
 
-    def __init__(self, mle: MLE, allTags, v) -> None:
+    def __init__(self, mle: MLE, allTags, v, seenWordsToTagsDict) -> None:
         super().__init__()
         self.k = None
         self.mle = mle
@@ -23,21 +26,24 @@ class Viterbi:
         self.tagsToIdxDict = {}
         self.idxToTagsDict = {}
         self.tagsNum = len(self.tags)
+        self.seenWordsToTagsDict = seenWordsToTagsDict
         for tag, idx in zip(self.tags, range(0, self.tagsNum)):
             self.tagsToIdxDict[tag] = idx
             self.idxToTagsDict[idx] = tag
         self.tagsToIdxDict['*'] = self.tagsNum
         self.idxToTagsDict[self.tagsNum] = '*'
+        input = [self.tags, self.tags]
+        self.relevantTagTuples = list(product(*input))
 
     def inference(self, sentence):
         self.inferenceSetUp(sentence)
         self.inferenceFirstIteration(sentence)
         self.inferenceSecondIteration(sentence)
 
-        poolSize = 3
+        poolSize = 8
         for self.k in range(3, len(sentence) + 1):
-
-            splitted = self.slice_list(list(range(0, len(self.allTagsList))), poolSize)
+            #start = time.time()
+            splitted = self.slice_list(list(range(0, len(self.relevantTagTuples))), poolSize)
             splitted = list(filter(lambda x: len(x) > 0, splitted))
             se = [(l[0], l[-1]) for l in splitted]
             pool = multiprocessing.Pool(poolSize)
@@ -52,15 +58,9 @@ class Viterbi:
             self.bp[self.k]=localBp
             pool.close()
             pool.join()
-
+            #stop = time.time()
+            #print("k= ", self.k, " took ", stop - start, " seconds")
         tagsList = self.inferenceLastIteration(sentence)
-        if poolSize==1:
-            np.save('viterbi s1 pi c1',self.pi)
-            np.save('viterbi s1 bp c1',self.bp)
-        else:
-            np.save('viterbi s1 pi c3', self.pi)
-            np.save('viterbi s1 bp c3', self.bp)
-        print(tagsList)
         return tagsList
 
     def inferenceLastIteration(self, sentence):
@@ -78,7 +78,7 @@ class Viterbi:
         return tagsList
 
     def inferenceSecondIteration(self, sentence):
-        for tagU, tagV in self.allTagsList:
+        for tagU, tagV in self.relevantTagTuples:
             history = History('*', tagU, sentence, 1)
             self.pi[2, self.tagsToIdxDict[tagU], self.tagsToIdxDict[tagV]] = \
                 self.pi[1, self.tagsToIdxDict['*'], self.tagsToIdxDict[tagU]] * self.mle.p(history, tagV, self.v)
@@ -98,17 +98,24 @@ class Viterbi:
         self.bp[:, :, :] = 0
         self.pi[0, len(self.tagsToIdxDict) - 1, len(self.tagsToIdxDict) - 1] = 1
         self.bp[0, len(self.tagsToIdxDict) - 1, len(self.tagsToIdxDict) - 1] = self.tagsNum
-        input = [self.tags, self.tags]
-        self.allTagsList = list(product(*input))
 
     def viterbiLoop(self, se):
-        allTagsList, bp, k, pi, sentence = self.allTagsList, self.bp, self.k, self.pi, self.sentence
+        allTagsList, bp, k, pi, sentence = self.relevantTagTuples, self.bp, self.k, self.pi, self.sentence
         myPi = np.zeros((len(self.tagsToIdxDict), len(self.tagsToIdxDict)))
         myBp = np.zeros((len(self.tagsToIdxDict), len(self.tagsToIdxDict)), dtype=int)
         for tagU, tagV in allTagsList[se[0]:se[1] + 1]:
+            if sentence[k-1] in self.seenWordsToTagsDict:
+                if tagV not in self.seenWordsToTagsDict[sentence[k-1]]:
+                    continue
+            if sentence[k-2] in self.seenWordsToTagsDict:
+                if tagU not in self.seenWordsToTagsDict[sentence[k-2]]:
+                    continue
             tmpMax = -1
             tmpMaxT = self.tagsNum
             for tagT in self.tags:
+                if sentence[k-3] in self.seenWordsToTagsDict:
+                    if tagT not in self.seenWordsToTagsDict[sentence[k-3]]:
+                        continue
                 history = History(tagT, tagU, sentence, k - 1)
                 mleRes = self.mle.p(history, tagV, self.v)
                 tmpRes = pi[k - 1, self.tagsToIdxDict[tagT], self.tagsToIdxDict[tagU]] * mleRes

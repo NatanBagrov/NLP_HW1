@@ -64,7 +64,6 @@ def realDataTest():
     v = np.ones(fb.size)
     start = time.time()
     print(mle.calculate(v))
-    return
     end = time.time()
     print("calcV took: " + str((end - start) / 60))
     start = time.time()
@@ -80,7 +79,21 @@ def realDataTest():
     print(best_v)
 
 
+def TRAIN():
+    print("Training: ")
+    parser = MyParser("../train.wtag")
+    splitted = parser.splitted
+    fb = BasicFeatureVectorBuilder(parser)
+    tags = parser.getUniqueTags()
+    mle = MLE(tags, splitted, fb)
+    best_v = mle.findBestV(np.loadtxt("opt_v.txt"))
+    print(best_v)
+
+
 if __name__=="__main__":
+
+    TRAIN()
+
     #calcTupleTestBasic()
     #start = time.time()
     #basicTest()
@@ -90,10 +103,10 @@ if __name__=="__main__":
     #realDataTest()
     #end = time.time()
     #print((end - start)/60)
-    start = time.time()
-    print("Calculating tuple using real data...")
-    calcTupleTestRealData()
-    end = time.time()
-    print((end - start) / 60)
+    # start = time.time()
+    # print("Calculating tuple using real data...")
+    # calcTupleTestRealData()
+    # end = time.time()
+    # print((end - start) / 60)
 
 

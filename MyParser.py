@@ -52,3 +52,13 @@ class MyParser:
         tags.sort()
         return tags
 
+    def getSeenWordsToTagsDict(self):
+        words_with_tag = self.getWordsWithTag()
+        d = dict()
+        for w,t in words_with_tag:
+            if w not in d:
+                d[w] = [t]
+                continue
+            if t not in d[w]:
+                d[w] = d[w] + [t]
+        return d

@@ -22,10 +22,22 @@ class MLE():
     def p(self, history, tag, v):
         feature = self.featureBuilder.getFeatureVector(history, tag)
         numerator = np.math.exp(np.sum(v[feature]))
-        features = list(map(lambda x: self.featureBuilder.getFeatureVector(history, x), self.allTags))
-        features = list(map(lambda x: np.math.exp(np.sum(v[x])), features))
-        res = np.sum(features)
-        return numerator / res
+        #fs = [self.featureBuilder.getFeatureVector(history, t) for t in self.allTags]
+        fs2 = self.featureBuilder.getFeatureVectors(history, self.allTags)
+        np_sums = np.array([np.sum(v[x]) for x in fs2])
+        np_exp_nominators = np.exp(np_sums)
+        np_exp_sum = np.sum(np_exp_nominators)
+        return numerator / np_exp_sum
+
+    def p_numerator(self,history,tag,v):
+        feature = self.featureBuilder.getFeatureVector(history, tag)
+        return np.math.exp(np.sum(v[feature]))
+
+    def p_denominator(self,history,v):
+        fs2 = self.featureBuilder.getFeatureVectors(history, self.allTags)
+        np_sums = np.array([np.sum(v[x]) for x in fs2])
+        np_exp_nominators = np.exp(np_sums)
+        return np.sum(np_exp_nominators)
 
     def preprocess(self):
         for line in self.splitted:
@@ -113,7 +125,7 @@ class MLE():
         return linearScore - globalScore
 
     def calcTuple(self, v):
-        np.savetxt('opt_v.txt', v)
+        np.savetxt('opt_v_2.txt', v)
         self.v = v
         poolSize = 7
         splitted = self.slice_list(list(range(0, len(self.splitted))), poolSize)
