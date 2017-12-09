@@ -10,6 +10,6 @@ class F101Builder(FeatureBuilderBase):
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
         current_word = history.sentence[history.idx]
-        if tag=='VBG' and current_word[-3:]=='ing':
+        if tag=='VBG' and current_word.endswith('ing'):
             return np.array([0]) + self.offset
         return np.array([])

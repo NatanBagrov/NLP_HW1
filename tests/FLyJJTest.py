@@ -1,4 +1,4 @@
-from Features.FAbleBuilder import FAbleBuilder
+from Features.FAdjSuffixBuilder import FAdjSuffixBuilder
 import Features.FLyJJBuilder
 from History import History
 from MyParser import MyParser
