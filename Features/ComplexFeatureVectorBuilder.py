@@ -103,6 +103,6 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
         vecVerbPrefix = self.fVerbPrefix.getFeatureVector(history, tag)
         vecVerbSuffix = self.fVerbSuffix.getFeatureVector(history, tag)
         return np.concatenate(
-            (vec100, vec103, vec104, vec105, vecCapital, vecNumberCD
-             , vecAdjPrefix, vecAdjSuffix, vecAdverbSuffix, vecNNAfterDT, vecNounPrefix, vecNounSuffix,
+            (vec100, vec103, vec104, vec105, vecCapital, vecNumberCD, vecAdjPrefix,
+             vecAdjSuffix, vecAdverbSuffix, vecNNAfterDT, vecNounPrefix, vecNounSuffix,
              vecCapitalFirst, vecVerbPrefix, vecVerbSuffix)).astype(int)

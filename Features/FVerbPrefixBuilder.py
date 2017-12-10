@@ -5,12 +5,13 @@ from Features.FeatureBuilderBase import FeatureBuilderBase
 
 class FVerbPrefixBuilder(FeatureBuilderBase):
     prefix = None
-    prefixToIdx = {}
+    prefixToIdx = None
 
     def __init__(self, offset) -> None:
+        self.prefixToIdx = {}
         self.prefix = ['dis', 'mis', 'ob', 'op', 'pre', 'un', 're']
         super().__init__(6 * len(self.prefix), offset)
-        for prefix, idx in zip(self.prefix, range(0, self.size)):
+        for prefix, idx in zip(self.prefix, range(0, len(self.prefix))):
             self.prefixToIdx[prefix] = idx + offset
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
@@ -20,13 +21,13 @@ class FVerbPrefixBuilder(FeatureBuilderBase):
             if tag == 'VB' and current_word.startswith(prefix):
                 res = res + [self.prefixToIdx[prefix]]
             if tag == 'VBD' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix]] + len(self.prefix)
+                res = res + [self.prefixToIdx[prefix] + len(self.prefix)]
             if tag == 'VBG' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix]] + 2 * len(self.prefix)
+                res = res + [self.prefixToIdx[prefix] + 2 * len(self.prefix)]
             if tag == 'VBN' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix]] + 3 * len(self.prefix)
+                res = res + [self.prefixToIdx[prefix] + 3 * len(self.prefix)]
             if tag == 'VBP' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix]] + 4 * len(self.prefix)
+                res = res + [self.prefixToIdx[prefix] + 4 * len(self.prefix)]
             if tag == 'VBZ' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix]] + 5 * len(self.prefix)
-        return np.array([res])
+                res = res + [self.prefixToIdx[prefix] + 5 * len(self.prefix)]
+        return np.array(res)
