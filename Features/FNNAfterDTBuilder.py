@@ -8,6 +8,8 @@ class FNNAfterDTBuilder(FeatureBuilderBase):
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
         t1 = history.t1
+        if t1 != 'DT':
+            return np.array([])
         if t1 == 'DT' and tag == 'NN':
             return np.array([0]) + self.offset
         if t1 == 'DT' and tag == 'NNS':

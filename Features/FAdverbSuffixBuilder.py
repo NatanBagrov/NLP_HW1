@@ -16,12 +16,13 @@ class FAdverbSuffixBuilder(FeatureBuilderBase):
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
         current_word = history.sentence[history.idx]
-        res = []
+        if tag != 'RB' and tag != 'RBR' and tag != 'RBS':
+            return np.array([])
         for suffix in self.suffix:
             if tag == 'RB' and current_word.endswith(suffix):
-                res = res + [self.suffixToIdx[suffix]]
+                return np.array([self.suffixToIdx[suffix]])
             if tag == 'RBR' and current_word.endswith(suffix):
-                res = res + [self.suffixToIdx[suffix] + len(self.suffix)]
+                return np.array([self.suffixToIdx[suffix]]) + len(self.suffix)
             if tag == 'RBS' and current_word.endswith(suffix):
-                res = res + [self.suffixToIdx[suffix] + 2 * len(self.suffix)]
-        return np.array(res)
+                return np.array([self.suffixToIdx[suffix]]) + (2 * len(self.suffix))
+        return np.array([])

@@ -16,12 +16,13 @@ class FAdjPrefixBuilder(FeatureBuilderBase):
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
         current_word = history.sentence[history.idx]
-        res = []
+        if tag != 'JJ' and tag != 'JJR' and tag != 'JJS':
+            return np.array([])
         for prefix in self.prefix:
             if tag == 'JJ' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix]]
+                return np.array([self.prefixToIdx[prefix]])
             if tag == 'JJR' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix] + len(self.prefix)]
+                return np.array([self.prefixToIdx[prefix]]) + len(self.prefix)
             if tag == 'JJS' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix] + 2 * len(self.prefix)]
-        return np.array(res)
+                return np.array([self.prefixToIdx[prefix]]) + (2 * len(self.prefix))
+        return np.array([])

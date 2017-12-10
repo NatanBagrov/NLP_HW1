@@ -8,6 +8,8 @@ class FNumberCDBuilder(FeatureBuilderBase):
         super().__init__(1,offset)
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
+        if tag != 'CD':
+            return np.array([])
         current_word = str(history.sentence[history.idx]).lower()
         if any(i.isdigit() for i in current_word) and tag=='CD':
             return np.array([0]) + self.offset

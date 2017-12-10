@@ -10,6 +10,8 @@ class FStartWithCapitalBuilder(FeatureBuilderBase):
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
         current_word = history.sentence[history.idx]
+        if tag != 'NN' and tag != 'NNS' and tag != 'NNP' and tag != 'NNPS':
+            return np.array([])
         if tag == 'NN' and current_word[0].isupper():
             return np.array([0]) + self.offset
         if tag == 'NNS' and current_word[0].isupper():

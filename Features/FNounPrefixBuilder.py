@@ -16,14 +16,15 @@ class FNounPrefixBuilder(FeatureBuilderBase):
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
         current_word = history.sentence[history.idx]
-        res = []
+        if tag != 'NN' and tag != 'NNS' and tag != 'NNP' and tag != 'NNPS':
+            return np.array([])
         for prefix in self.prefix:
             if tag == 'NN' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix]]
+                return np.array([self.prefixToIdx[prefix]])
             if tag == 'NNS' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix] + len(self.prefix)]
+                return np.array([self.prefixToIdx[prefix]]) + len(self.prefix)
             if tag == 'NNP' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix] + 2 * len(self.prefix)]
+                    return np.array([self.prefixToIdx[prefix]]) + (2 * len(self.prefix))
             if tag == 'NNPS' and current_word.startswith(prefix):
-                res = res + [self.prefixToIdx[prefix] + 3 * len(self.prefix)]
-        return np.array(res)
+                return np.array([self.prefixToIdx[prefix]]) + (3 * len(self.prefix))
+        return np.array([])

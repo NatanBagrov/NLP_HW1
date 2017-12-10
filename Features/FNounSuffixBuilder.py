@@ -17,14 +17,15 @@ class FNounSuffixBuilder(FeatureBuilderBase):
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
         current_word = history.sentence[history.idx]
-        res = []
+        if tag != 'NN' and tag != 'NNS' and tag != 'NNP' and tag != 'NNPS':
+            return np.array([])
         for suffix in self.suffix:
             if tag.startswith('NN') and current_word.endswith(suffix):
-                res = res + [self.suffixToIdx[suffix]]
+                return np.array([self.suffixToIdx[suffix]])
             if tag.startswith('NNS') and current_word.endswith(suffix):
-                res = res + [self.suffixToIdx[suffix] + len(self.suffix)]
+                return np.array([self.suffixToIdx[suffix]]) + len(self.suffix)
             if tag.startswith('NNP') and current_word.endswith(suffix):
-                res = res + [self.suffixToIdx[suffix] + 2 * len(self.suffix)]
+                return np.array([self.suffixToIdx[suffix]]) + (2 * len(self.suffix))
             if tag.startswith('NNPS') and current_word.endswith(suffix):
-                res = res + [self.suffixToIdx[suffix] + 3 * len(self.suffix)]
-        return np.array(res)
+                return np.array([self.suffixToIdx[suffix]]) + (3 * len(self.suffix))
+        return np.array([])

@@ -16,6 +16,8 @@ class FVerbSuffixBuilder(FeatureBuilderBase):
 
     def getFeatureVector(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
         current_word = history.sentence[history.idx]
+        if tag != 'VB' and tag != 'VBD' and tag != 'VBG' and tag != 'VBN' and tag != 'VBP' and tag != 'VBZ':
+            return np.array([])
         for suffix in self.suffix:
             if tag == 'VB' and current_word.endswith(suffix):
                 return np.array([self.suffixToIdx[suffix]])
