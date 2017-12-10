@@ -9,14 +9,18 @@ from History import History
 
 class MLE():
     sumfiyi = None
+    lmbda = 0
     v = {}
+    vFile = 'opt_v_tmp.txt'
 
-    def __init__(self, allTags, splitted, featureBuilder: FeatureBuilderBase) -> None:
+    def __init__(self, allTags, splitted, featureBuilder: FeatureBuilderBase, lmbda, vFile) -> None:
         super().__init__()
         self.allTags = allTags
         self.splitted = splitted
         self.featureBuilder = featureBuilder
         self.sumfiyi = np.zeros(self.featureBuilder.size)
+        self.lmbda = lmbda
+        self.vFile = vFile
         self.preprocess()
 
     def p(self, history, tag, v):
@@ -47,7 +51,7 @@ class MLE():
                 self.sumfiyi[f] += 1
 
     def calcTuple(self, v):
-        np.savetxt('opt_v_2.txt', v)
+        np.savetxt(self.vFile, v)
         self.v = v
         poolSize = 7
         splitted = self.slice_list(list(range(0, len(self.splitted))), poolSize)
@@ -58,8 +62,12 @@ class MLE():
         x = np.array([np.array(x) for x in res if not x is None])
         grads = np.array([np.array(xx[0]) for xx in x])
         grads = self.sumfiyi - np.sum(grads, axis=0)
+        grads_regularizator = self.v * self.lmbda
+        grads = grads - grads_regularizator
         lv = np.array([np.array(xx[1]) for xx in x])
         lv = np.sum(lv)
+        lv_regularizator = np.inner(self.v, self.v) * (self.lmbda / 2)
+        lv = lv - lv_regularizator
         pool.close()
         pool.join()
         return -lv, -grads
@@ -111,6 +119,5 @@ class MLE():
 
     def findBestV(self, initV):
         v = optimize.minimize(self.calcTuple, initV,
-                              method='L-BFGS-B', jac=True, options={'disp': True})
-
-        return v.x
+                              method='L-BFGS-B', jac=True, options={'disp': True, 'maxiter': 400})
+        return v

@@ -30,10 +30,9 @@ def trainTest():
     fb = BasicFeatureVectorBuilder(parser,0)
     mle = MLE(parser.getUniqueTags(), splitted, fb)
     v = np.loadtxt("opt_v_3.txt")
-    #splitted = splitted[0:10]
+    #splitted = splitted[308:]
     sentences = list(map(lambda tuples: [t[0] for t in tuples], splitted))
     expected_tags = list(map(lambda tuples: [t[1] for t in tuples], splitted))
-    seenSentencesToTagsDict = parser.getSeenWordsToTagsDict()
     vit = Viterbi(mle, mle.allTags, v, seenSentencesToTagsDict)
     total_res = 0
     words_count = 0
@@ -44,13 +43,13 @@ def trainTest():
         start = time.time()
         tags = vit.inference(s)
 
-        res_file = open("test_wtag_results.txt",'a')
+        res_file = open("test_wtag_results_091217.txt",'a')
         for item in tags:
             res_file.write("%s " % item)
         res_file.write("\n")
         res_file.close()
 
-        exp_file = open("test_wtag_expected.txt", 'a')
+        exp_file = open("test_wtag_expected_091217.txt", 'a')
         for item in expected:
             exp_file.write("%s " % item)
         exp_file.write("\n")
@@ -79,9 +78,9 @@ def veriftPi():
 
 if __name__ == "__main__":
     trainTest()
-    start = time.time()
+    #start = time.time()
     #basicTest()
-    end = time.time()
+    #end = time.time()
     #print((end - start) / 60)
     #veriftPi()
 
