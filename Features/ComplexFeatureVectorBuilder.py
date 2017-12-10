@@ -47,10 +47,10 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
         vecSize = 0
         self.f100 = F100Builder(parser.getWordsWithTag(), vecSize)
         vecSize = self.f100.size
-        self.f101 = F101Builder(vecSize)
-        vecSize = vecSize + self.f101.size
-        self.f102 = F102Builder(vecSize)
-        vecSize = vecSize + self.f102.size
+        # self.f101 = F101Builder(vecSize)
+        # vecSize = vecSize + self.f101.size
+        # self.f102 = F102Builder(vecSize)
+        # vecSize = vecSize + self.f102.size
         self.f103 = F103Builder(parser.getAllThreeTagsCombinations(), vecSize)
         vecSize = vecSize + self.f103.size
         self.f104 = F104Builder(parser.getAllPairTagsCombinations(), vecSize)
@@ -59,8 +59,8 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
         vecSize = vecSize + self.f105.size
         self.fCapital = FCapitalBuilder(vecSize)
         vecSize = vecSize + self.fCapital.size
-        self.fNumber = FNumberBuilder(vecSize)
-        vecSize = vecSize + self.fNumber.size
+        # self.fNumber = FNumberBuilder(vecSize)
+        # vecSize = vecSize + self.fNumber.size
         self.fNumberCD = FNumberCDBuilder(vecSize)
         vecSize = vecSize + self.fNumberCD.size
         self.fAdjPrefix = FAdjPrefixBuilder(vecSize)
@@ -85,13 +85,13 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
 
     def getFeatureVector(self, history, tag):
         vec100 = self.f100.getFeatureVector(history, tag)
-        vec101 = self.f101.getFeatureVector(history, tag)
-        vec102 = self.f102.getFeatureVector(history, tag)
+        # vec101 = self.f101.getFeatureVector(history, tag)
+        # vec102 = self.f102.getFeatureVector(history, tag)
         vec103 = self.f103.getFeatureVector(history, tag)
         vec104 = self.f104.getFeatureVector(history, tag)
         vec105 = self.f105.getFeatureVector(history, tag)
         vecCapital = self.fCapital.getFeatureVector(history, tag)
-        vecNumber = self.fNumber.getFeatureVector(history, tag)
+        # vecNumber = self.fNumber.getFeatureVector(history, tag)
         vecNumberCD = self.fNumberCD.getFeatureVector(history, tag)
         vecAdjPrefix = self.fAdjPrefix.getFeatureVector(history, tag)
         vecAdjSuffix = self.fAdjSuffix.getFeatureVector(history, tag)
@@ -103,6 +103,6 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
         vecVerbPrefix = self.fVerbPrefix.getFeatureVector(history, tag)
         vecVerbSuffix = self.fVerbSuffix.getFeatureVector(history, tag)
         return np.concatenate(
-            (vec100, vec101, vec102, vec103, vec104, vec105, vecCapital, vecNumber, vecNumberCD
+            (vec100, vec103, vec104, vec105, vecCapital, vecNumberCD
              , vecAdjPrefix, vecAdjSuffix, vecAdverbSuffix, vecNNAfterDT, vecNounPrefix, vecNounSuffix,
              vecCapitalFirst, vecVerbPrefix, vecVerbSuffix)).astype(int)

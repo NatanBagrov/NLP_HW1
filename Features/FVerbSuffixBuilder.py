@@ -8,7 +8,7 @@ class FVerbSuffixBuilder(FeatureBuilderBase):
     suffixToIdx = {}
 
     def __init__(self, offset) -> None:
-        self.suffix = ['ize', 'ise', 'yse', 'ate', 'ent', 'ent', 'en', 'ify', 'fy', 'ct', 'fine', 'ive', 'ed']
+        self.suffix = ['ing' ,'ize', 'ise', 'yse', 'ate', 'ent', 'ent', 'en', 'ify', 'fy', 'ct', 'fine', 'ive', 'ed']
         super().__init__(6 * len(self.suffix), offset)
         for suffix, idx in zip(self.suffix, range(0, self.size)):
             self.suffixToIdx[suffix] = idx + offset
