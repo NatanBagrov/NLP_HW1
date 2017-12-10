@@ -9,8 +9,8 @@ class FNounSuffixBuilder(FeatureBuilderBase):
 
     def __init__(self, offset) -> None:
         self.suffix = ['ment', 'ness', 'sion', 'tion', 'ty', 'al', 'ance', 'hood', 'dom', 'ght', 'ful', 'er', 'age',
-                       'sis','ism','ity','ant','ssion','ship','th','cess']
-        super().__init__(len(self.suffix), offset)
+                       'sis', 'ism', 'ity', 'ant', 'ssion', 'ship', 'th', 'cess']
+        super().__init__(4 * len(self.suffix), offset)
         for suffix, idx in zip(self.suffix, range(0, self.size)):
             self.suffixToIdx[suffix] = idx + offset
 
@@ -20,4 +20,10 @@ class FNounSuffixBuilder(FeatureBuilderBase):
         for suffix in self.suffix:
             if tag.startswith('NN') and current_word.endswith(suffix):
                 res = res + [self.suffixToIdx[suffix]]
+            if tag.startswith('NNS') and current_word.endswith(suffix):
+                res = res + [self.suffixToIdx[suffix]] + len(self.suffix)
+            if tag.startswith('NNP') and current_word.endswith(suffix):
+                res = res + [self.suffixToIdx[suffix]] + 2 * len(self.suffix)
+            if tag.startswith('NNPS') and current_word.endswith(suffix):
+                res = res + [self.suffixToIdx[suffix]] + 3 * len(self.suffix)
         return np.array([res])
