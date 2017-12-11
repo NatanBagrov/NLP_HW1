@@ -19,16 +19,17 @@ class FVerbPrefixBuilder(FeatureBuilderBase):
         if tag != 'VB' and tag != 'VBD' and tag != 'VBG' and tag != 'VBN' and tag != 'VBP' and tag != 'VBZ':
             return np.array([])
         for prefix in self.prefix:
-            if tag == 'VB' and current_word.startswith(prefix):
+            startswith = current_word.startswith(prefix)
+            if tag == 'VB' and startswith:
                 return np.array([self.prefixToIdx[prefix]])
-            if tag == 'VBD' and current_word.startswith(prefix):
+            if tag == 'VBD' and startswith:
                 return np.array([self.prefixToIdx[prefix]]) + len(self.prefix)
-            if tag == 'VBG' and current_word.startswith(prefix):
+            if tag == 'VBG' and startswith:
                 return np.array([self.prefixToIdx[prefix]]) + (2 * len(self.prefix))
-            if tag == 'VBN' and current_word.startswith(prefix):
+            if tag == 'VBN' and startswith:
                 return np.array([self.prefixToIdx[prefix]]) + (3 * len(self.prefix))
-            if tag == 'VBP' and current_word.startswith(prefix):
+            if tag == 'VBP' and startswith:
                 return np.array([self.prefixToIdx[prefix]]) + (4 * len(self.prefix))
-            if tag == 'VBZ' and current_word.startswith(prefix):
+            if tag == 'VBZ' and startswith:
                 return np.array([self.prefixToIdx[prefix]]) + (5 * len(self.prefix))
         return np.array([])

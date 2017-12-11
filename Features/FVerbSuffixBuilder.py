@@ -19,16 +19,17 @@ class FVerbSuffixBuilder(FeatureBuilderBase):
         if tag != 'VB' and tag != 'VBD' and tag != 'VBG' and tag != 'VBN' and tag != 'VBP' and tag != 'VBZ':
             return np.array([])
         for suffix in self.suffix:
-            if tag == 'VB' and current_word.endswith(suffix):
+            endswith = current_word.endswith(suffix)
+            if tag == 'VB' and endswith:
                 return np.array([self.suffixToIdx[suffix]])
-            if tag == 'VBD' and current_word.endswith(suffix):
+            if tag == 'VBD' and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + len(self.suffix)
-            if tag == 'VBG' and current_word.endswith(suffix):
+            if tag == 'VBG' and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + (2 * len(self.suffix))
-            if tag == 'VBN' and current_word.endswith(suffix):
+            if tag == 'VBN' and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + (3 * len(self.suffix))
-            if tag == 'VBP' and current_word.endswith(suffix):
+            if tag == 'VBP' and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + (4 * len(self.suffix))
-            if tag == 'VBZ' and current_word.endswith(suffix):
+            if tag == 'VBZ' and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + (5 * len(self.suffix))
         return np.array([])

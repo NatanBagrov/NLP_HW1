@@ -19,10 +19,11 @@ class FAdjSuffixBuilder(FeatureBuilderBase):
         if tag != 'JJ' and tag != 'JJR' and tag != 'JJS':
             return np.array([])
         for suffix in self.suffix:
-            if tag == 'JJ' and current_word.endswith(suffix):
+            endswith = current_word.endswith(suffix)
+            if tag == 'JJ' and endswith:
                 return np.array([self.suffixToIdx[suffix]])
-            if tag == 'JJR' and current_word.endswith(suffix):
+            if tag == 'JJR' and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + len(self.suffix)
-            if tag == 'JJS' and current_word.endswith(suffix):
+            if tag == 'JJS' and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + (2 * len(self.suffix))
         return np.array([])

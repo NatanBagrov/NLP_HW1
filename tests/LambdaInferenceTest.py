@@ -15,15 +15,15 @@ def findBestLambda(testFile):
     splitted = parser.splitted
     fb = BasicFeatureVectorBuilder(parser,0)
     import os
-    prefixed = [filename for filename in os.listdir('.') if filename.startswith('finish_opt_v_')]
+    prefixed = [filename for filename in os.listdir('.') if filename.startswith('finish_basic_opt_v_')]
     prefixed.sort()
     print(prefixed)
-    lambdas = [0.05, 0.1, 0.5, 1, 10, 100, 1000, 15, 2, 20, 200, 2000, 30, 40, 5, 50, 500, 5000, 7, 75]
+    lambdas = [0.5,0.02, 0.025]
     results = []
     for file,lmbda in zip(prefixed,lambdas):
         mle = MLE(parser.getUniqueTags(), splitted, fb, lmbda,'../tmp1234.txt')
         v = np.loadtxt(file)
-        #splitted = splitted[308:]
+        splitted = splitted[309:]
         sentences = list(map(lambda tuples: [t[0] for t in tuples], splitted))
         expected_tags = list(map(lambda tuples: [t[1] for t in tuples], splitted))
         vit = Viterbi(mle, mle.allTags, v, seenSentencesToTagsDict)

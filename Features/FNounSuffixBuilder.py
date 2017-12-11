@@ -20,12 +20,13 @@ class FNounSuffixBuilder(FeatureBuilderBase):
         if tag != 'NN' and tag != 'NNS' and tag != 'NNP' and tag != 'NNPS':
             return np.array([])
         for suffix in self.suffix:
-            if tag.startswith('NN') and current_word.endswith(suffix):
+            endswith = current_word.endswith(suffix)
+            if tag.startswith('NN') and endswith:
                 return np.array([self.suffixToIdx[suffix]])
-            if tag.startswith('NNS') and current_word.endswith(suffix):
+            if tag.startswith('NNS') and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + len(self.suffix)
-            if tag.startswith('NNP') and current_word.endswith(suffix):
+            if tag.startswith('NNP') and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + (2 * len(self.suffix))
-            if tag.startswith('NNPS') and current_word.endswith(suffix):
+            if tag.startswith('NNPS') and endswith:
                 return np.array([self.suffixToIdx[suffix]]) + (3 * len(self.suffix))
         return np.array([])

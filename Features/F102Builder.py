@@ -3,7 +3,6 @@ from Features.FeatureBuilderBase import FeatureBuilderBase
 
 
 class F102Builder(FeatureBuilderBase):
-    d = {}
 
     def __init__(self,offset) -> None:
         super().__init__(1,offset)

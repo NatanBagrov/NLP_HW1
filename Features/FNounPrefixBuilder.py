@@ -19,12 +19,13 @@ class FNounPrefixBuilder(FeatureBuilderBase):
         if tag != 'NN' and tag != 'NNS' and tag != 'NNP' and tag != 'NNPS':
             return np.array([])
         for prefix in self.prefix:
-            if tag == 'NN' and current_word.startswith(prefix):
+            startswith = current_word.startswith(prefix)
+            if tag == 'NN' and startswith:
                 return np.array([self.prefixToIdx[prefix]])
-            if tag == 'NNS' and current_word.startswith(prefix):
+            if tag == 'NNS' and startswith:
                 return np.array([self.prefixToIdx[prefix]]) + len(self.prefix)
-            if tag == 'NNP' and current_word.startswith(prefix):
+            if tag == 'NNP' and startswith:
                     return np.array([self.prefixToIdx[prefix]]) + (2 * len(self.prefix))
-            if tag == 'NNPS' and current_word.startswith(prefix):
+            if tag == 'NNPS' and startswith:
                 return np.array([self.prefixToIdx[prefix]]) + (3 * len(self.prefix))
         return np.array([])
