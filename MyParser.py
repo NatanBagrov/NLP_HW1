@@ -62,3 +62,46 @@ class MyParser:
             if t not in d[w]:
                 d[w] = d[w] + [t]
         return d
+
+    def getAllTagsForPrefix(self, prefixes):
+        l = self.getWordsWithTag()
+        pref = []
+        for w,t in l:
+            pref = pref + [(w,x,t) for x in prefixes if w.startswith(x)]
+        pref = list(set(pref))
+        pref.sort()
+        return pref
+
+    def getAllTagsForSuffix(self, suffixes):
+        l = self.getWordsWithTag()
+        suf = []
+        for w, t in l:
+            suf = suf + [(w, x, t) for x in suffixes if w.endswith(x)]
+        suf = list(set(suf))
+        suf.sort()
+        return suf
+
+    def getAllTagsForLettersNumbers(self, digits):
+        res = []
+        l = self.getWordsWithTag()
+        for w,t in l:
+            res = res + [(w,x,t) for x in digits if str(w).startswith(x)]
+        return res
+
+
+    def getAllTagsForCaps(self):
+        l = self.getWordsWithTag()
+        res = []
+        for w, t in l:
+            if not str(w).islower():
+                res = res + [(w,t)]
+        return res
+
+
+    def getAllTagsForDigitLetters(self):
+        res = []
+        l = self.getWordsWithTag()
+        for w, t in l:
+            if any(i.isdigit() for i in str(w)):
+                res = res + [(w, t)]
+        return res
