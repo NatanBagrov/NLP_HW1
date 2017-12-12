@@ -51,6 +51,7 @@ class MLE():
     def calcTuple(self, v):
         np.savetxt(self.tmpVFile, v)
         self.v = v
+        start = time.time()
         poolSize = 7
         splitted = self.slice_list(list(range(0, len(self.splitted))), poolSize)
         splitted = list(filter(lambda x: len(x) > 0, splitted))
@@ -60,7 +61,6 @@ class MLE():
         x = np.array([np.array(x) for x in res if not x is None])
         grads = np.array([np.array(xx[0]) for xx in x])
         lv = np.array([np.array(xx[1]) for xx in x])
-        # grads, lv = self.calcTupleMP((0, len(self.splitted)))
         grads = self.sumfiyi - np.sum(grads, axis=0)
         grads_regularizator = self.v * self.lmbda
         grads = grads - grads_regularizator
@@ -69,6 +69,7 @@ class MLE():
         lv = lv - lv_regularizator
         pool.close()
         pool.join()
+        print("calcTuple iteration took: ", time.time() - start, "seconds.")
         return -lv, -grads
 
     def calcTupleMP(self, indices):
@@ -116,9 +117,9 @@ class MLE():
                 remain -= 1
         return result
 
-    def findBestV(self, initV, lmbda, tmpFile):
+    def findBestV(self, initV, lmbda, tmpFile, maxIterations):
         self.lmbda = lmbda
         self.tmpVFile = tmpFile
         v = optimize.minimize(self.calcTuple, initV,
-                              method='L-BFGS-B', jac=True, options={'disp': True, 'maxiter': 400})
+                              method='L-BFGS-B', jac=True, options={'disp': True, 'maxiter': maxIterations})
         return v
