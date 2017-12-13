@@ -12,23 +12,24 @@ from Viterbi import Viterbi
 def infer_basic(fileToInfer):
     infer_prepare_params("basic", fileToInfer)
 
-def complex_basic(fileToInfer):
+def infer_complex(fileToInfer):
     infer_prepare_params("complex", fileToInfer)
 
 def infer_prepare_params(basic_or_complex, fileToInfer):
     train_parser = MyParser("../train.wtag")
     seenWordsToTagsDict = train_parser.getSeenWordsToTagsDict()
-    parser = MyParser(fileToInfer)
-    splitted = parser.splitted
     fb,filePrefix = None, None
     if basic_or_complex == 'basic':
-        fb = BasicFeatureVectorBuilder(parser, 0)
+        fb = BasicFeatureVectorBuilder(train_parser, 0)
         filePrefix = 'finish_basic_opt_v_'
     elif basic_or_complex == 'complex':
-        fb = ComplexFeatureVectorBuilder(parser, train_parser, False)
+        fb = ComplexFeatureVectorBuilder(train_parser, False)
         filePrefix = 'finish_complex_opt_v_'
     else:
         assert (False)
+
+    parser = MyParser(fileToInfer)
+    splitted = parser.splitted
     mle = MLE(parser.getUniqueTags(), splitted, fb)
 
     prefixed = [filename for filename in os.listdir('.') if filename.startswith(filePrefix)]

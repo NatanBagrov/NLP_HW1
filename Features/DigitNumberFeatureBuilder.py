@@ -8,7 +8,7 @@ class DigitNumberFeatureBuilder(FeatureBuilderBase):
     d_train = {}
     d_inference = {}
 
-    def __init__(self, offset, parser: MyParser) -> None:
+    def __init__(self, parser: MyParser, offset) -> None:
         self.d_train = {}
         self.d_inference = {}
         digit_letters_tuple = parser.getAllTagsForDigitLetters()

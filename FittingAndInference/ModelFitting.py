@@ -11,7 +11,7 @@ def fit_complex_model():
     lambdas = [0, 0.05, 2]
     parser = MyParser("../train.wtag")
     splitted = parser.splitted
-    cfb = ComplexFeatureVectorBuilder(parser, parser, True)
+    cfb = ComplexFeatureVectorBuilder(parser, True)
     tags = parser.getUniqueTags()
     mle = MLE(tags, splitted, cfb)
     fit_model_aux(mle, "complex", lambdas, 400)

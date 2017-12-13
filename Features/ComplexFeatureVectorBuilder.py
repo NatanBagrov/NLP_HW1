@@ -25,44 +25,44 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
     fCaps = None
     isTraining = None
 
-    def __init__(self, parser: MyParser, train_parser: MyParser, isTraining) -> None:
-        self.parser = parser
+    def __init__(self, train_parser: MyParser, isTraining) -> None:
+        self.parser = train_parser
         self.isTraining = isTraining
         vecSize = 0
 
-        self.f100 = F100Builder(parser.getWordsWithTag(), vecSize)
+        self.f100 = F100Builder(train_parser.getWordsWithTag(), vecSize)
         vecSize = self.f100.size
         print("F100 size", self.f100.size)
 
-        self.f103 = F103Builder(parser.getAllThreeTagsCombinations(), vecSize)
+        self.f103 = F103Builder(train_parser.getAllThreeTagsCombinations(), vecSize)
         vecSize = vecSize + self.f103.size
         print("F103 size", self.f103.size)
 
-        self.f104 = F104Builder(parser.getAllPairTagsCombinations(), vecSize)
+        self.f104 = F104Builder(train_parser.getAllPairTagsCombinations(), vecSize)
         vecSize = vecSize + self.f104.size
         print("F104 size", self.f104.size)
 
-        self.f106 = F106Builder(parser.getUniqueTags(), vecSize)
+        self.f106 = F106Builder(train_parser.getUniqueTags(), vecSize)
         vecSize = vecSize + self.f106.size
         print("F106 size", self.f106.size)
 
-        self.fSuf = SuffixFeatureBuilder(vecSize, train_parser)
+        self.fSuf = SuffixFeatureBuilder(train_parser, vecSize)
         vecSize = vecSize + self.fSuf.size
         print("Suffix size", self.fSuf.size)
 
-        self.fPref = PrefixFeatureBuilder(vecSize, train_parser)
+        self.fPref = PrefixFeatureBuilder(train_parser, vecSize)
         vecSize = vecSize + self.fPref.size
         print("Prefix size", self.fPref.size)
 
-        self.fDigNum = DigitNumberFeatureBuilder(vecSize, train_parser)
+        self.fDigNum = DigitNumberFeatureBuilder(train_parser, vecSize)
         vecSize = vecSize + self.fDigNum.size
         print("DigitNum size", self.fDigNum.size)
 
-        self.fLetNum = DigitWordFeatureBuilder(vecSize, train_parser)
+        self.fLetNum = DigitWordFeatureBuilder(train_parser, vecSize)
         vecSize = vecSize + self.fLetNum.size
         print("DigitLetter size", self.fLetNum.size)
 
-        self.fCaps = CapsFeatureBuilder(vecSize, train_parser)
+        self.fCaps = CapsFeatureBuilder(train_parser, vecSize)
         vecSize = vecSize + self.fCaps.size
         print("Caps size", self.fCaps.size)
 

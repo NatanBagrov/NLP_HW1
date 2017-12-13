@@ -9,7 +9,7 @@ class DigitWordFeatureBuilder(FeatureBuilderBase):
     d_inference = {}
     digits = None
 
-    def __init__(self, offset, parser: MyParser) -> None:
+    def __init__(self, parser: MyParser, offset) -> None:
         self.d_train = {}
         self.d_inference = {}
         self.digits = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']

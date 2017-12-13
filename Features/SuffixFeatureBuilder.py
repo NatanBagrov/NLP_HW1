@@ -9,7 +9,7 @@ class SuffixFeatureBuilder(FeatureBuilderBase):
     d_inference = {}
     suffixes = None
 
-    def __init__(self,offset, parser: MyParser) -> None:
+    def __init__(self, parser: MyParser, offset) -> None:
         self.d_train = {}
         self.d_inference = {}
         self.suffixes = ['ful', 'ive', 'ic', 'al', 'able', 'ed', 'ible', 'ing', 'ous', 'ish', 'like', 'some',

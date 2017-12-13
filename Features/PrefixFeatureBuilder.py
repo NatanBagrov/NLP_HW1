@@ -9,7 +9,7 @@ class PrefixFeatureBuilder(FeatureBuilderBase):
     d_inference = {}
     prefixes = None
 
-    def __init__(self,offset, parser: MyParser) -> None:
+    def __init__(self,parser: MyParser, offset) -> None:
         self.d_train = {}
         self.d_inference = {}
         self.prefixes = ['anti', 'en', 'il', 'im', 'in', 'ir', 'non', 'pre', 'un', 'ly', 'dis', 'mis', 'ob', 'op', 're']
