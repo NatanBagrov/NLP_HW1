@@ -12,11 +12,18 @@ class PrefixFeatureBuilder(FeatureBuilderBase):
     def __init__(self,parser: MyParser, offset) -> None:
         self.d_train = {}
         self.d_inference = {}
-        self.prefixes = ['anti', 'en', 'il', 'im', 'in', 'ir', 'non', 'pre', 'un', 'ly', 'dis', 'mis', 'ob', 'op', 're']
+        self.prefixes = ['a', 'ante', 'anti', 'arch', 'auto', 'bi', 'circum', 'co', 'col', 'com',
+                         'con', 'contra','counter', 'de', 'dia', 'dis', 'dys', 'e', 'eco', 'en', 'em', 'equi', 'ex',
+                         'extra', 'fore', 'hyper', 'il', 'im', 'in', 'ir', 'inter', 'inrta', 'kilo', 'macro',
+                         'mal', 'micro', 'mid', 'mis', 'mono', 'multi', 'neo', 'non', 'out', 'over', 'post', 'pre',
+                         'pro', 'pseudo', 're', 'retro', 'semi', 'sub', 'super', 'trans', 'ultra', 'un', 'under', 'well']
         self.prefixes = sorted(set(self.prefixes))
         pref_triplet = parser.getAllTagsForPrefix(self.prefixes)
+        self.prefixes = []
         pref_len = len(pref_triplet)
         for (w,x,t),i in zip(pref_triplet, range(0, pref_len)):
+            if x not in self.prefixes:
+                self.prefixes.append(x)
             if (x,t) not in self.d_inference:
                 self.d_inference[(x,t)] = i + offset
             self.d_train[(w,t)] = self.d_inference[(x,t)]

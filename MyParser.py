@@ -35,6 +35,26 @@ class MyParser:
         l.sort()
         return l
 
+    def getAllPrevWordTagCombinations(self):
+        tags = []
+        for line in self.splitted:
+            for (w_prev, _), (_, t_curr) in zip(line[:], line[1:]):
+                tags.append((w_prev, t_curr))
+            tags.append(("*", line[0][1]))
+        l = list(set(tags))
+        l.sort()
+        return l
+
+    def getAllNextWordTagCombinations(self):
+        tags = []
+        for line in self.splitted:
+            for (_, t_curr), (w_next, _) in zip(line[:], line[1:]):
+                tags.append((w_next, t_curr))
+            tags.append(("SEN-END", line[-1][1]))
+        l = list(set(tags))
+        l.sort()
+        return l
+
     def getAllPairTagsCombinations(self):
         tags = []
         for line in self.splitted:

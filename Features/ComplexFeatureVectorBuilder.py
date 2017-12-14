@@ -3,15 +3,14 @@ import numpy as np
 from Features.CapsFeatureBuilder import CapsFeatureBuilder
 from Features.DigitNumberFeatureBuilder import DigitNumberFeatureBuilder
 from Features.DigitWordFeatureBuilder import DigitWordFeatureBuilder
-from Features.PrefixFeatureBuilder import PrefixFeatureBuilder
 from Features.F100Builder import F100Builder
 from Features.F103Builder import F103Builder
 from Features.F104Builder import F104Builder
 from Features.F106Builder import F106Builder
-from Features.FeatureBuilderBase import FeatureBuilderBase
+from Features.PrefixFeatureBuilder import PrefixFeatureBuilder
+from Features.PrevNextWordFeatureBuilder import FeatureBuilderBase, PrevNextWordFeatureBuilder
 from Features.SuffixFeatureBuilder import SuffixFeatureBuilder
 from MyParser import MyParser
-
 
 class ComplexFeatureVectorBuilder(FeatureBuilderBase):
     parser = None
@@ -23,6 +22,7 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
     fDigNum = None
     fLetNum = None
     fCaps = None
+    fPrevNext = None
     isTraining = None
 
     def __init__(self, train_parser: MyParser, isTraining) -> None:
@@ -66,6 +66,11 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
         vecSize = vecSize + self.fCaps.size
         print("Caps size", self.fCaps.size)
 
+        self.fPrevNext = PrevNextWordFeatureBuilder(train_parser.getAllPrevWordTagCombinations(),
+                                                    train_parser.getAllNextWordTagCombinations(), vecSize)
+        vecSize = vecSize + self.fPrevNext.size
+        print("PrevNext size", self.fPrevNext.size)
+
         super().__init__(vecSize, 0)
 
     def getFeatureVector(self, history, tag):
@@ -73,19 +78,12 @@ class ComplexFeatureVectorBuilder(FeatureBuilderBase):
         vec103 = self.f103.getFeatureVector(history, tag)
         vec104 = self.f104.getFeatureVector(history, tag)
         vec106 = self.f106.getFeatureVector(history, tag)
-
-        if self.isTraining:
-            vecSuf = self.fSuf.getFeatureVectorTrain(history,tag)
-            vecPref = self.fPref.getFeatureVectorTrain(history,tag)
-            vecDigNum = self.fDigNum.getFeatureVectorTrain(history,tag)
-            vecDigLet = self.fLetNum.getFeatureVectorTrain(history,tag)
-            vecCaps = self.fCaps.getFeatureVectorTrain(history,tag)
-        else:
-            vecSuf = self.fSuf.getFeatureVector(history,tag)
-            vecPref = self.fPref.getFeatureVector(history,tag)
-            vecDigNum = self.fDigNum.getFeatureVector(history,tag)
-            vecDigLet = self.fLetNum.getFeatureVector(history,tag)
-            vecCaps = self.fCaps.getFeatureVector(history,tag)
+        vecSuf = self.fSuf.getFeatureVector(history,tag)
+        vecPref = self.fPref.getFeatureVector(history,tag)
+        vecDigNum = self.fDigNum.getFeatureVector(history,tag)
+        vecDigLet = self.fLetNum.getFeatureVector(history,tag)
+        vecCaps = self.fCaps.getFeatureVector(history,tag)
+        vecPrevNext = self.fPrevNext.getFeatureVector(history,tag)
 
         return np.concatenate(
-            (vec100, vec103, vec104, vec106, vecSuf, vecPref, vecDigNum, vecDigLet, vecCaps)).astype(int)
+            (vec100, vec103, vec104, vec106, vecSuf, vecPref, vecDigNum, vecDigLet, vecCaps, vecPrevNext)).astype(int)

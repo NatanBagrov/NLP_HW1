@@ -18,14 +18,16 @@ class SuffixFeatureBuilder(FeatureBuilderBase):
                          'cess', 'ize', 'ise', 'yse', 'ate', 'ent', 'en', 'ify', 'fy', 'ct', 'fine', 'ive', 'ed']
         self.suffixes = sorted(set(self.suffixes))
         suf_triplet = parser.getAllTagsForSuffix(self.suffixes)
+        self.suffixes = []
         suf_len = len(suf_triplet)
         for (w,x,t),i in zip(suf_triplet, range(0, suf_len)):
+            if x not in self.suffixes:
+                self.suffixes.append(x)
             if (x,t) not in self.d_inference:
                 self.d_inference[(x,t)] = i + offset
             self.d_train[(w,t)] = self.d_inference[(x,t)]
 
         super().__init__(len(self.d_inference),offset)
-
 
 
     def getFeatureVectorTrain(self, history, tag):  # history=(t-2,t-1,list of words in sentence, index)
