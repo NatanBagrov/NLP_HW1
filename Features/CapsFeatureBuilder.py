@@ -16,7 +16,7 @@ class CapsFeatureBuilder(FeatureBuilderBase):
         caps_len = len(caps_tuple)
         for (w, t), i in zip(caps_tuple, range(0, caps_len)):
             if t not in self.d_inference:
-                self.d_inference[t] = i + offset
+                self.d_inference[t] = len(self.d_inference) + offset
             self.d_train[(w, t)] = self.d_inference[t]
 
         super().__init__(len(self.d_inference), offset)

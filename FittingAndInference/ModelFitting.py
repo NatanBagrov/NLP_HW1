@@ -7,24 +7,30 @@ from MLE import MLE
 from MyParser import MyParser
 
 
-def fit_complex_model():
-    lambdas = [0, 0.05, 2]
+def fit_complex_model(continueTraining):
+    v = None
+    if continueTraining:
+        v = np.loadtxt("finish_complex_opt_v_lambda_0_007.txt")
+    lambdas = [0.007]
     parser = MyParser("../train.wtag")
     splitted = parser.splitted
-    cfb = ComplexFeatureVectorBuilder(parser, True)
+    cfb = ComplexFeatureVectorBuilder(parser, False)
     tags = parser.getUniqueTags()
     mle = MLE(tags, splitted, cfb)
-    fit_model_aux(mle, "complex", lambdas, 400)
+    fit_model_aux(mle, "complex", lambdas, 300, v)
 
 
-def fit_basic_model():
-    lambdas = [0.001, 0.005, 0.007, 0.01, 0.012, 0.015, 0.017]
+def fit_basic_model(continueTraining):
+    v = None
+    if continueTraining:
+        v = np.loadtxt("finish_basic_opt_v_lambda_0_007.txt")
+    lambdas = [0.007]
     parser = MyParser("../train.wtag")
     splitted = parser.splitted
     basicFeatureBuilder = BasicFeatureVectorBuilder(parser, 0)
     tags = parser.getUniqueTags()
     mle = MLE(tags, splitted, basicFeatureBuilder)
-    fit_model_aux(mle, "basic", lambdas, 400)
+    fit_model_aux(mle, "basic", lambdas, 550, v)
 
 
 def fit_model_aux(mle: MLE, prefix_name, lambdas, iterationsNum, initv=None):
@@ -35,6 +41,7 @@ def fit_model_aux(mle: MLE, prefix_name, lambdas, iterationsNum, initv=None):
     else:
         print("Will continue training given init vector")
         v = initv
+        print(v)
     for lmbda in lambdas:
         print("Current lambda:", str(lmbda))
         start = time.time()
@@ -47,5 +54,5 @@ def fit_model_aux(mle: MLE, prefix_name, lambdas, iterationsNum, initv=None):
 
 
 if __name__ == "__main__":
-    fit_basic_model()
-    # fit_complex_model()
+    # fit_basic_model(True)
+    fit_complex_model(False)

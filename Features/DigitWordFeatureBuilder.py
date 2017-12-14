@@ -20,7 +20,7 @@ class DigitWordFeatureBuilder(FeatureBuilderBase):
         digit_len = len(digit_triplet)
         for (w, x, t), i in zip(digit_triplet, range(0, digit_len)):
             if (x, t) not in self.d_inference:
-                self.d_inference[(x, t)] = i + offset
+                self.d_inference[(x, t)] = len(self.d_inference) + offset
             self.d_train[(w, t)] = self.d_inference[(x, t)]
 
         super().__init__(len(self.d_inference), offset)

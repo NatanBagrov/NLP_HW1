@@ -8,7 +8,6 @@ from MyParser import MyParser
 from Viterbi import Viterbi
 
 
-
 def infer_basic(fileToInfer):
     infer_prepare_params("basic", fileToInfer)
 
@@ -27,7 +26,7 @@ def infer_prepare_params(basic_or_complex, fileToInfer):
         filePrefix = 'finish_complex_opt_v_'
     else:
         assert (False)
-
+    fn = str(fileToInfer).replace('.','').replace('/','')
     parser = MyParser(fileToInfer)
     splitted = parser.splitted
     mle = MLE(parser.getUniqueTags(), splitted, fb)
@@ -40,18 +39,18 @@ def infer_prepare_params(basic_or_complex, fileToInfer):
     for v_file in prefixed:
         v = np.loadtxt(v_file)
         vit = Viterbi(mle, mle.allTags, v, seenWordsToTagsDict)
-        res_file = open("test_wtag_results_" + v_file, 'w')
-        exp_file = open("test_wtag_expected_" + v_file, 'w')
+        res_file = open(fn+"_results_" + v_file, 'w')
+        exp_file = open(fn+"_expected_" + v_file, 'w')
         accuracy = infer_aux(exp_file, res_file, v_file, splitted, vit)
         res_file.close()
         exp_file.close()
         results = results + [accuracy]
-    infer_aux_results(prefixed, results, fileToInfer)
+    infer_aux_results(prefixed, results, fileToInfer, fn)
 
-def infer_aux_results(prefixed, results, fileToInfer):
+def infer_aux_results(prefixed, results, fileToInfer, fn):
     summary_file = open("summary_inference.txt", 'a')
     for f, r in zip(prefixed, results):
-        s = "Results for " + fileToInfer + " with params: " + f + " is: " + str(r) + "\n"
+        s = "Results for " + fileToInfer + " " + fn + " " + "sentences, with params: " + f + " is: " + str(r) + "\n"
         summary_file.write(s)
     summary_file.write(".\n\n")
     summary_file.close()
@@ -94,3 +93,6 @@ def infer_aux(exp_file, res_file, v_file, splitted, vit):
 
 if __name__ == "__main__":
     infer_basic("../test.wtag")
+    infer_basic("../comp748.wtag")
+    infer_complex("../test.wtag")
+    infer_complex("../comp748.wtag")

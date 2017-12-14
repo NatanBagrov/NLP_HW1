@@ -15,3 +15,8 @@ class F106Builder(FeatureBuilderBase):
         if tag in self.d:
             return np.array([self.d[tag]])
         return np.array([])
+
+    def getFeatureVectorTrain(self,history,tag): #history=(t-2,t-1,list of words in sentence, index)
+        if tag in self.d:
+            return np.array([self.d[tag]])
+        return np.array([])
