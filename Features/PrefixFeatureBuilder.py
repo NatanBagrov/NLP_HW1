@@ -25,7 +25,7 @@ class PrefixFeatureBuilder(FeatureBuilderBase):
             if x not in self.prefixes:
                 self.prefixes.append(x)
             if (x,t) not in self.d_inference:
-                self.d_inference[(x,t)] = i + offset
+                self.d_inference[(x,t)] = len(self.d_inference) + offset
             self.d_train[(w,t)] = self.d_inference[(x,t)]
 
         super().__init__(len(self.d_inference),offset)
