@@ -29,7 +29,7 @@ def infer_prepare_params(basic_or_complex, fileToInfer):
     fn = str(fileToInfer).replace('.','').replace('/','')
     parser = MyParser(fileToInfer)
     splitted = parser.splitted
-    mle = MLE(parser.getUniqueTags(), splitted, fb)
+    mle = MLE(train_parser.getUniqueTags(), splitted, fb)
 
     prefixed = [filename for filename in os.listdir('.') if filename.startswith(filePrefix)]
     prefixed.sort()
