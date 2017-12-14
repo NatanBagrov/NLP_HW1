@@ -2,6 +2,7 @@ import numpy as np
 import time
 
 from Features.BasicFeatureVectorBuilder import BasicFeatureVectorBuilder
+from Features.ComplexFeatureVectorBuilder import ComplexFeatureVectorBuilder
 from MLE import MLE
 from MyParser import MyParser
 
@@ -21,10 +22,11 @@ def calcTupleTestBasic():
 def calcTupleTestRealData():
     parser = MyParser("../train.wtag")
     splitted = parser.splitted
-    fb = BasicFeatureVectorBuilder(parser)
+    # fb = BasicFeatureVectorBuilder(parser,0)
+    fb = ComplexFeatureVectorBuilder(parser)
     tags = parser.getUniqueTags()
     start = time.time()
-    mle = MLE(tags, splitted, fb)
+    mle = MLE(tags, splitted, fb,0,"tmp1234.txt")
     end = time.time()
     print("End of preprocessing, took: ", end - start)
     v = np.ones(fb.size)
@@ -36,11 +38,6 @@ def calcTupleTestRealData():
     np.savetxt('train_gradientTuple.txt', grad)
     end = time.time()
     print("calcTuple took: ",end - start, " seconds")
-    truth = np.loadtxt("train_gradient.txt")
-    current = np.loadtxt("train_gradientTuple.txt")
-    dist = np.linalg.norm(truth + current)  # we sum since we changed shit to return negation
-    assert dist < 0.0001
-    assert 295426.175443 - lv < 0.001
 
 def basicTest():
     parser = MyParser("MLE_db.wtag")
@@ -92,8 +89,8 @@ def TRAIN():
 
 if __name__=="__main__":
 
-    TRAIN()
-
+    #TRAIN()
+    calcTupleTestRealData()
     #calcTupleTestBasic()
     #start = time.time()
     #basicTest()
