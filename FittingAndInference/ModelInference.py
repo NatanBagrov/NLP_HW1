@@ -92,7 +92,8 @@ def infer_aux(exp_file, res_file, v_file, splitted, vit):
 
 
 if __name__ == "__main__":
-    infer_basic("../test.wtag")
-    infer_basic("../comp748.wtag")
-    infer_complex("../test.wtag")
-    infer_complex("../comp748.wtag")
+    #infer_basic("../test.wtag")
+    #infer_basic("../comp748.wtag")
+    infer_basic('../Results/comp_dummy.wtag')
+    #infer_complex("../test.wtag")
+    #infer_complex("../comp748.wtag")

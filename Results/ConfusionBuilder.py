@@ -31,7 +31,7 @@ def complexConfusion():
     mat, res = cm.calculateMatrixForLowestNTags(expected, actual, 10)
     expected.close()
     actual.close()
-    output = open('complexConfusionMatrix_141217.txt', 'a')
+    output = open('complexConfusionMatrix_151217.txt', 'a')
     for tag in tags:
         output.write(" {}".format(tag))
     output.write('\n')
